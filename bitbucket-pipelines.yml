@@ -24,7 +24,7 @@ pipelines:
     # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
     - step:
         name: 'Deployment to Dev1'
-        deployment: Dev1
+        deployment: dev1
         trigger: 'manual'
         script:
           - echo "Your deployment to production script goes here..."
