@@ -302,6 +302,7 @@
         <masterLabel>00h36000003jARg</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
+        # <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
     </summaryLayout>
 </Layout>
