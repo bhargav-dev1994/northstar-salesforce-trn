@@ -1,0 +1,27 @@
+<project name="SalesforceDeployment" default="deploy" xmlns:sf="antlib:com.salesforce">
+
+    <property file="build.properties"/>
+
+    <!-- Load Salesforce Ant Tasks -->
+    <taskdef resource="com/salesforce/antlib.xml" classpath="${sf.antlib.path}"/>
+
+    <target name="authenticate">
+        <sf:sfdeploy 
+            username="${sf.username}" 
+            password="${sf.password}" 
+            serverurl="${sf.serverurl}" 
+            retrieveTarget="retrieve"/>
+    </target>
+
+    <target name="deploy">
+        <sf:deploy 
+            username="${sf.username}" 
+            password="${sf.password}" 
+            serverurl="${sf.serverurl}" 
+            deployRoot="src" 
+            checkOnly="false" 
+            runTests="${sf.runTests}" 
+            rollbackOnError="true"/>
+    </target>
+
+</project>
