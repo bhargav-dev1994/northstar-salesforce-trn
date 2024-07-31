@@ -1,0 +1,66 @@
+name: Salesforce Deployment
+
+on:
+  push:
+    branches:
+      - Dev1
+      - SIT
+      - UAT
+      - PROD
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Java
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+
+    - name: Setup Ant
+      run: |
+        sudo apt-get update
+        sudo apt-get install ant -y
+
+    - name: Deploy to Environment
+      env:
+        SF_SERVERURL: ${{ secrets.SF_SERVERURL }}
+      run: |
+        case ${{ github.ref_name }} in
+          Dev1)
+            SF_USERNAME=${{ secrets.SF_USERNAME_DEV }}
+            SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV }}
+            ;;
+          SIT)
+            SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}
+            SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}
+            ;;
+          UAT)
+            SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}
+            SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}
+            ;;
+          PROD)
+            SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}
+            SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}
+            ;;
+        esac
+        ant -f build.xml authenticate -Dsf.username=$SF_USERNAME -Dsf.password=$SF_PASSWORD -Dsf.serverurl=$SF_SERVERURL
+        ant -f build.xml deploy -Dsf.username=$SF_USERNAME -Dsf.password=$SF_PASSWORD -Dsf.serverurl=$SF_SERVERURL
+
+    # - name: Notify ServiceNow of Deployment Success
+    #   if: success()
+    #   run: |
+    #     curl -X POST "https://<your_instance>.service-now.com/api/now/table/incident" \
+    #     --user "${{ secrets.SN_USERNAME }}:${{ secrets.SN_PASSWORD }}" \
+    #     --header "Content-Type: application/json" \
+    #     --data '{
+    #       "short_description": "Deployment to ${{ github.ref_name }} Environment Successful",
+    #       "description": "The deployment to the ${{ github.ref_name }} environment has been completed successfully.",
+    #       "category": "Software",
+    #       "subcategory": "Deployment",
+    #       "u_environment": "${{ github.ref_name }}"
+    #     }'
