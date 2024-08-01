@@ -12,11 +12,11 @@
   <property name="prod.serverurl" value="${sf.serverurl.prod}" />
 
   <!-- Define the location of the Salesforce Ant tasks -->
-  <taskdef name="sfDeploy"
-           classname="com.salesforce.ant.SFDCAntTask"
+  <taskdef name="deploy"
+           classname="com.salesforce.ant.SFDXDeployTask"
            classpath="lib/ant-salesforce.jar"/>
-  <taskdef name="sfRetrieve"
-           classname="com.salesforce.ant.SFDCAntTask"
+  <taskdef name="retrieve"
+           classname="com.salesforce.ant.SFDXRetrieveTask"
            classpath="lib/ant-salesforce.jar"/>
 
   <!-- Target to deploy to Salesforce -->
@@ -30,7 +30,7 @@
 
     <echo message="Using environment: ${current.environment}"/>
     
-    <sfDeploy
+    <deploy
       username="${current.environment == 'sandbox' ? sandbox.username : prod.username}"
       password="${current.environment == 'sandbox' ? sandbox.password : prod.password}"
       serverurl="${current.environment == 'sandbox' ? sandbox.serverurl : prod.serverurl}"
@@ -48,7 +48,7 @@
 
     <echo message="Using environment: ${current.environment}"/>
     
-    <sfRetrieve
+    <retrieve
       username="${current.environment == 'sandbox' ? sandbox.username : prod.username}"
       password="${current.environment == 'sandbox' ? sandbox.password : prod.password}"
       serverurl="${current.environment == 'sandbox' ? sandbox.serverurl : prod.serverurl}"
