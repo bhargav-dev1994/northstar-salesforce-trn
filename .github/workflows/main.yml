@@ -27,11 +27,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install ant -y
 
-    - name: Create and Verify lib Directory
-      run: |
-        mkdir -p ./lib
-        ls -al ./lib
-
     - name: Verify ant-salesforce.jar
       run: |
         if [ ! -f ./lib/ant-salesforce.jar ]; then
