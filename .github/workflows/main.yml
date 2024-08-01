@@ -29,12 +29,14 @@ jobs:
 
     - name: Download Salesforce Ant Migration Tool
       run: |
-        wget -q https://gs0.salesforce.com/dwnld/SfdcAnt/salesforce_ant_49.0.zip -O /tmp/salesforce_ant.zip
-        unzip -qq /tmp/salesforce_ant.zip -d /tmp/
-        mkdir -p ./lib
-        cp /tmp/salesforce_ant_49.0/ant-salesforce.jar ./lib/
+        mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.2:copy \
+            -Dartifact=com.salesforce:ant-salesforce:49.0.0:jar \
+            -DoutputDirectory=./lib
 
     - name: Deploy to Environment
+      env:
+        SF_SERVERURL_PROD: ${{ secrets.SF_SERVERURL_PROD }}
+        SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
       run: |
         case ${{ github.ref_name }} in
           Dev1|SIT|UAT)
@@ -44,7 +46,7 @@ jobs:
             export ANT_ENV=prod
             ;;
         esac
-        ant -lib ./lib -f build.xml deploy -Denv.${ANT_ENV}=${{ secrets.SF_ENV }}
+        ant -lib ./lib -f build.xml deploy -Denv=${ANT_ENV}
 
     # - name: Notify ServiceNow of Deployment Success
     #   if: success()
