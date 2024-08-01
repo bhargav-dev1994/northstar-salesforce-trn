@@ -1,32 +1,44 @@
-<project name="SalesforceDeployment" default="deploy" basedir=".">
+<project name="Salesforce Deployment" basedir="." default="deploy">
+    <!-- Load properties from the properties file -->
     <property file="build.properties"/>
 
+    <!-- Define the Salesforce Ant task -->
+    <taskdef name="sf:deploy" 
+             classname="com.salesforce.ant.SfdcAntTask" 
+             classpath="lib/ant-salesforce.jar" />
+
+    <!-- Define the deploy target -->
     <target name="deploy">
-        <!-- Set environment-specific properties -->
+        <!-- Set properties based on environment -->
         <condition property="sf.username" value="${sf.username.sandbox}">
-            <isset property="env.sandbox"/>
+            <equals arg1="${env.ENV}" arg2="sandbox"/>
         </condition>
-        <condition property="sf.password" value="${sf.password.sandbox}">
-            <isset property="env.sandbox"/>
-        </condition>
-        <condition property="sf.serverurl" value="${sf.serverurl.sandbox}">
-            <isset property="env.sandbox"/>
+        <condition property="sf.username" value="${sf.username.prod}">
+            <equals arg1="${env.ENV}" arg2="prod"/>
         </condition>
 
-        <condition property="sf.username" value="${sf.username.prod}">
-            <isset property="env.prod"/>
+        <condition property="sf.password" value="${sf.password.sandbox}">
+            <equals arg1="${env.ENV}" arg2="sandbox"/>
         </condition>
         <condition property="sf.password" value="${sf.password.prod}">
-            <isset property="env.prod"/>
-        </condition>
-        <condition property="sf.serverurl" value="${sf.serverurl.prod}">
-            <isset property="env.prod"/>
+            <equals arg1="${env.ENV}" arg2="prod"/>
         </condition>
 
-        <!-- Authenticate and Deploy -->
-        <taskdef resource="com/salesforce/antlib.xml" classpath="lib/ant-salesforce.jar"/>
-        <sf:deploy username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" runAllTests="${sf.runTests}">
-            <!-- Specify the components to deploy -->
-        </sf:deploy>
+        <condition property="sf.serverurl" value="${sf.serverurl.sandbox}">
+            <equals arg1="${env.ENV}" arg2="sandbox"/>
+        </condition>
+        <condition property="sf.serverurl" value="${sf.serverurl.prod}">
+            <equals arg1="${env.ENV}" arg2="prod"/>
+        </condition>
+
+        <!-- Print out the used properties for debugging -->
+        <echo message="Using Salesforce username: ${sf.username}"/>
+        <echo message="Using Salesforce server URL: ${sf.serverurl}"/>
+
+        <!-- Deploy to Salesforce -->
+        <sf:deploy username="${sf.username}" 
+                   password="${sf.password}" 
+                   serverurl="${sf.serverurl}" 
+                   deployRoot="deploy"/>
     </target>
 </project>
