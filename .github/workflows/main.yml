@@ -27,9 +27,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install ant -y
 
+    - name: Create lib directory
+      run: mkdir -p ./lib
+
     - name: Download Salesforce Ant Migration Tool
       run: |
-        wget -q https://your-hosted-ant-salesforce-jar-url/ant-salesforce.jar -O ./lib/ant-salesforce.jar
+        wget -q https://gs0.salesforce.com/dwnld/SfdcAnt/salesforce_ant_59.0.zip -O ./lib/ant-salesforce.jar
 
     - name: Deploy to Environment
       env:
