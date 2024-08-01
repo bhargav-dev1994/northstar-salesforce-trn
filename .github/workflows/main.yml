@@ -29,9 +29,7 @@ jobs:
 
     - name: Download Salesforce Ant Migration Tool
       run: |
-        mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.2:copy \
-            -Dartifact=com.salesforce:ant-salesforce:49.0.0:jar \
-            -DoutputDirectory=./lib
+        wget -q https://your-hosted-ant-salesforce-jar-url/ant-salesforce.jar -O ./lib/ant-salesforce.jar
 
     - name: Deploy to Environment
       env:
