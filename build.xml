@@ -1,32 +1,29 @@
-<project name="SalesforceDeployment" default="deploy" basedir=".">
-    <property file="build.properties"/>
-
-    <target name="deploy">
-        <!-- Set environment-specific properties -->
-        <condition property="sf.username" value="${sf.username.sandbox}">
-            <isset property="env.sandbox"/>
-        </condition>
-        <condition property="sf.password" value="${sf.password.sandbox}">
-            <isset property="env.sandbox"/>
-        </condition>
-        <condition property="sf.serverurl" value="${sf.serverurl.sandbox}">
-            <isset property="env.sandbox"/>
-        </condition>
-
-        <condition property="sf.username" value="${sf.username.prod}">
-            <isset property="env.prod"/>
-        </condition>
-        <condition property="sf.password" value="${sf.password.prod}">
-            <isset property="env.prod"/>
-        </condition>
-        <condition property="sf.serverurl" value="${sf.serverurl.prod}">
-            <isset property="env.prod"/>
-        </condition>
-
-        <!-- Authenticate and Deploy -->
-        <taskdef resource="com/salesforce/antlib.xml" classpath="lib/ant-salesforce.jar"/>
-        <sf:deploy username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" runAllTests="${sf.runTests}">
-            <!-- Specify the components to deploy -->
-        </sf:deploy>
+<project name="Salesforce Deployment" default="deploy" basedir=".">
+    <!-- Define properties for Salesforce CLI -->
+    <property name="sfdx.install.script" value="install_sfdx.bat"/>
+    <property name="deploy.source" value="src"/>
+    <property name="org.alias" value="target-org-alias"/>
+    
+    <!-- Target to install Salesforce CLI -->
+    <target name="install-sfdx">
+      <echo message="Checking and installing Salesforce CLI if necessary..."/>
+      <exec executable="${sfdx.install.script}" failonerror="true" osfamily="windows"/>
     </target>
-</project>
+  
+    <!-- Target to deploy to Salesforce using sfdx -->
+    <target name="deploy" depends="install-sfdx">
+      <echo message="Deploying to Salesforce..."/>
+      <exec executable="sfdx" failonerror="true" osfamily="windows">
+        <arg line="force:source:deploy -p ${deploy.source} -u ${org.alias}"/>
+      </exec>
+    </target>
+  
+    <!-- Target to retrieve from Salesforce using sfdx -->
+    <target name="retrieve" depends="install-sfdx">
+      <echo message="Retrieving from Salesforce..."/>
+      <exec executable="sfdx" failonerror="true" osfamily="windows">
+        <arg line="force:source:retrieve -p ${deploy.source} -u ${org.alias}"/>
+      </exec>
+    </target>
+  </project>
+  

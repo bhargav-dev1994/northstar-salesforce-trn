@@ -27,35 +27,37 @@ jobs:
         sudo apt-get update
         sudo apt-get install ant -y
 
-    - name: Download Salesforce Ant Migration Tool
+    - name: Verify ant-salesforce.jar
       run: |
-        wget -q https://gs0.salesforce.com/dwnld/SfdcAnt/salesforce_ant_49.0.zip -O /tmp/salesforce_ant.zip
-        unzip -qq /tmp/salesforce_ant.zip -d /tmp/
-        mkdir -p ./lib
-        cp /tmp/salesforce_ant_49.0/ant-salesforce.jar ./lib/
+        if [ ! -f ./lib/ant-salesforce.jar ]; then
+          echo "ant-salesforce.jar not found in lib directory"
+          exit 1
+        fi
 
     - name: Deploy to Environment
+      env:
+        SF_SERVERURL_PROD: ${{ secrets.SF_SERVERURL_PROD }}
+        SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
+        SF_USERNAME_SANDBOX: ${{ secrets.SF_USERNAME_SANDBOX }}
+        SF_PASSWORD_SANDBOX: ${{ secrets.SF_PASSWORD_SANDBOX }}
+        SF_USERNAME_PROD: ${{ secrets.SF_USERNAME_PROD }}
+        SF_PASSWORD_PROD: ${{ secrets.SF_PASSWORD_PROD }}
+        ENV: ${{ github.ref_name }}
       run: |
         case ${{ github.ref_name }} in
           Dev1|SIT|UAT)
-            export ANT_ENV=sandbox
+            export SF_USERNAME=$SF_USERNAME_SANDBOX
+            export SF_PASSWORD=$SF_PASSWORD_SANDBOX
+            export SF_SERVERURL=$SF_SERVERURL_SANDBOX
             ;;
           PROD)
-            export ANT_ENV=prod
+            export SF_USERNAME=$SF_USERNAME_PROD
+            export SF_PASSWORD=$SF_PASSWORD_PROD
+            export SF_SERVERURL=$SF_SERVERURL_PROD
             ;;
         esac
-        ant -lib ./lib -f build.xml deploy -Denv.${ANT_ENV}=${{ secrets.SF_ENV }}
 
-    # - name: Notify ServiceNow of Deployment Success
-    #   if: success()
-    #   run: |
-    #     curl -X POST "https://<your_instance>.service-now.com/api/now/table/incident" \
-    #     --user "${{ secrets.SN_USERNAME }}:${{ secrets.SN_PASSWORD }}" \
-    #     --header "Content-Type: application/json" \
-    #     --data '{
-    #       "short_description": "Deployment to ${{ github.ref_name }} Environment Successful",
-    #       "description": "The deployment to the ${{ github.ref_name }} environment has been completed successfully.",
-    #       "category": "Software",
-    #       "subcategory": "Deployment",
-    #       "u_environment": "${{ github.ref_name }}"
-    #     }'
+        echo "Using environment: $ENV"
+        echo "Salesforce server URL: $SF_SERVERURL"
+
+        ant -lib ./lib -f build.xml deploy -Dsf.username=$SF_USERNAME -Dsf.password=$SF_PASSWORD -Dsf.serverurl=$SF_SERVERURL
