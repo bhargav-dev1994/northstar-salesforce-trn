@@ -14,12 +14,10 @@
   <!-- Define the location of the Salesforce Ant tasks -->
   <taskdef name="sf:deploy"
            classname="com.salesforce.ant.SFDCAntTask"
-           classpath="lib/ant-salesforce.jar"
-           xmlns:sf="antlib:com.salesforce.ant"/>
+           classpath="lib/ant-salesforce.jar"/>
   <taskdef name="sf:retrieve"
            classname="com.salesforce.ant.SFDCAntTask"
-           classpath="lib/ant-salesforce.jar"
-           xmlns:sf="antlib:com.salesforce.ant"/>
+           classpath="lib/ant-salesforce.jar"/>
 
   <!-- Target to deploy to Salesforce -->
   <target name="deploy">
