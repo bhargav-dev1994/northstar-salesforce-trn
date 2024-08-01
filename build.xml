@@ -1,6 +1,16 @@
 <?xml version="1.0"?>
 <project name="Salesforce Deployment" default="deploy" basedir=".">
 
+  <!-- Define properties for Sandbox environment -->
+  <property name="sandbox.username" value="${sf.username.sandbox}" />
+  <property name="sandbox.password" value="${sf.password.sandbox}" />
+  <property name="sandbox.serverurl" value="${sf.serverurl.sandbox}" />
+
+  <!-- Define properties for Production environment -->
+  <property name="prod.username" value="${sf.username.prod}" />
+  <property name="prod.password" value="${sf.password.prod}" />
+  <property name="prod.serverurl" value="${sf.serverurl.prod}" />
+
   <!-- Define the location of the Salesforce Ant tasks -->
   <taskdef name="sf:deploy"
            classname="com.salesforce.ant.SFDCAntTask"
@@ -8,11 +18,38 @@
 
   <!-- Target to deploy to Salesforce -->
   <target name="deploy">
+    <condition property="current.environment" value="sandbox">
+      <equals arg1="${env}" arg2="sandbox"/>
+    </condition>
+    <condition property="current.environment" value="prod">
+      <equals arg1="${env}" arg2="prod"/>
+    </condition>
+
+    <echo message="Using environment: ${current.environment}"/>
+    
     <sf:deploy
-      username="${sf.username}"
-      password="${sf.password}"
-      serverurl="${sf.serverurl}"
+      username="${current.environment == 'sandbox' ? sandbox.username : prod.username}"
+      password="${current.environment == 'sandbox' ? sandbox.password : prod.password}"
+      serverurl="${current.environment == 'sandbox' ? sandbox.serverurl : prod.serverurl}"
       deployRoot="src"/>
+  </target>
+
+  <!-- Target to retrieve from Salesforce -->
+  <target name="retrieve">
+    <condition property="current.environment" value="sandbox">
+      <equals arg1="${env}" arg2="sandbox"/>
+    </condition>
+    <condition property="current.environment" value="prod">
+      <equals arg1="${env}" arg2="prod"/>
+    </condition>
+
+    <echo message="Using environment: ${current.environment}"/>
+    
+    <sf:retrieve
+      username="${current.environment == 'sandbox' ? sandbox.username : prod.username}"
+      password="${current.environment == 'sandbox' ? sandbox.password : prod.password}"
+      serverurl="${current.environment == 'sandbox' ? sandbox.serverurl : prod.serverurl}"
+      retrieveTarget="src"/>
   </target>
 
 </project>
