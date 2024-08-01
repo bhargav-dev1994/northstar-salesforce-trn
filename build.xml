@@ -1,44 +1,18 @@
-<project name="Salesforce Deployment" basedir="." default="deploy">
-    <!-- Load properties from the properties file -->
-    <property file="build.properties"/>
+<?xml version="1.0"?>
+<project name="Salesforce Deployment" default="deploy" basedir=".">
 
-    <!-- Define the Salesforce Ant task -->
-    <taskdef name="sf:deploy" 
-             classname="com.salesforce.ant.SfdcAntTask" 
-             classpath="lib/ant-salesforce.jar" />
+  <!-- Define the location of the Salesforce Ant tasks -->
+  <taskdef name="sf:deploy"
+           classname="com.salesforce.ant.SFDCAntTask"
+           classpath="lib/ant-salesforce.jar"/>
 
-    <!-- Define the deploy target -->
-    <target name="deploy">
-        <!-- Set properties based on environment -->
-        <condition property="sf.username" value="${sf.username.sandbox}">
-            <equals arg1="${env.ENV}" arg2="sandbox"/>
-        </condition>
-        <condition property="sf.username" value="${sf.username.prod}">
-            <equals arg1="${env.ENV}" arg2="prod"/>
-        </condition>
+  <!-- Target to deploy to Salesforce -->
+  <target name="deploy">
+    <sf:deploy
+      username="${sf.username}"
+      password="${sf.password}"
+      serverurl="${sf.serverurl}"
+      deployRoot="src"/>
+  </target>
 
-        <condition property="sf.password" value="${sf.password.sandbox}">
-            <equals arg1="${env.ENV}" arg2="sandbox"/>
-        </condition>
-        <condition property="sf.password" value="${sf.password.prod}">
-            <equals arg1="${env.ENV}" arg2="prod"/>
-        </condition>
-
-        <condition property="sf.serverurl" value="${sf.serverurl.sandbox}">
-            <equals arg1="${env.ENV}" arg2="sandbox"/>
-        </condition>
-        <condition property="sf.serverurl" value="${sf.serverurl.prod}">
-            <equals arg1="${env.ENV}" arg2="prod"/>
-        </condition>
-
-        <!-- Print out the used properties for debugging -->
-        <echo message="Using Salesforce username: ${sf.username}"/>
-        <echo message="Using Salesforce server URL: ${sf.serverurl}"/>
-
-        <!-- Deploy to Salesforce -->
-        <sf:deploy username="${sf.username}" 
-                   password="${sf.password}" 
-                   serverurl="${sf.serverurl}" 
-                   deployRoot="deploy"/>
-    </target>
 </project>
