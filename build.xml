@@ -1,58 +1,26 @@
 <?xml version="1.0"?>
 <project name="Salesforce Deployment" default="deploy" basedir=".">
 
-  <!-- Define properties for Sandbox environment -->
-  <property name="sandbox.username" value="${sf.username.sandbox}" />
-  <property name="sandbox.password" value="${sf.password.sandbox}" />
-  <property name="sandbox.serverurl" value="${sf.serverurl.sandbox}" />
+  <!-- Define properties for Salesforce CLI -->
+  <property name="sfdx.path" value="sfdx"/>
+  <property name="deploy.source" value="src"/>
+  <property name="retrieve.source" value="src"/>
+  <property name="org.alias" value="target-org-alias"/>
 
-  <!-- Define properties for Production environment -->
-  <property name="prod.username" value="${sf.username.prod}" />
-  <property name="prod.password" value="${sf.password.prod}" />
-  <property name="prod.serverurl" value="${sf.serverurl.prod}" />
-
-  <!-- Define the location of the Salesforce Ant tasks -->
-  <taskdef name="deploy"
-           classname="com.salesforce.ant.SFDCAntTask"
-           classpath="lib/ant-salesforce.jar"/>
-  <taskdef name="retrieve"
-           classname="com.salesforce.ant.SFDCAntTask"
-           classpath="lib/ant-salesforce.jar"/>
-
-  <!-- Target to deploy to Salesforce -->
+  <!-- Target to deploy to Salesforce using sfdx -->
   <target name="deploy">
-    <condition property="current.environment" value="sandbox">
-      <equals arg1="${env}" arg2="sandbox"/>
-    </condition>
-    <condition property="current.environment" value="prod">
-      <equals arg1="${env}" arg2="prod"/>
-    </condition>
-
-    <echo message="Using environment: ${current.environment}"/>
-    
-    <deploy
-      username="${current.environment == 'sandbox' ? sandbox.username : prod.username}"
-      password="${current.environment == 'sandbox' ? sandbox.password : prod.password}"
-      serverurl="${current.environment == 'sandbox' ? sandbox.serverurl : prod.serverurl}"
-      deployRoot="src"/>
+    <echo message="Deploying to Salesforce..."/>
+    <exec executable="${sfdx.path}">
+      <arg line="force:source:deploy -p ${deploy.source} -u ${org.alias}"/>
+    </exec>
   </target>
 
-  <!-- Target to retrieve from Salesforce -->
+  <!-- Target to retrieve from Salesforce using sfdx -->
   <target name="retrieve">
-    <condition property="current.environment" value="sandbox">
-      <equals arg1="${env}" arg2="sandbox"/>
-    </condition>
-    <condition property="current.environment" value="prod">
-      <equals arg1="${env}" arg2="prod"/>
-    </condition>
-
-    <echo message="Using environment: ${current.environment}"/>
-    
-    <retrieve
-      username="${current.environment == 'sandbox' ? sandbox.username : prod.username}"
-      password="${current.environment == 'sandbox' ? sandbox.password : prod.password}"
-      serverurl="${current.environment == 'sandbox' ? sandbox.serverurl : prod.serverurl}"
-      retrieveTarget="src"/>
+    <echo message="Retrieving from Salesforce..."/>
+    <exec executable="${sfdx.path}">
+      <arg line="force:source:retrieve -p ${retrieve.source} -u ${org.alias}"/>
+    </exec>
   </target>
 
 </project>
