@@ -27,12 +27,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install ant -y
 
-    - name: Create lib directory
-      run: mkdir -p ./lib
-
-    - name: Download Salesforce Ant Migration Tool
-      run: |
-        wget -q https://gs0.salesforce.com/dwnld/SfdcAnt/salesforce_ant_59.0.zip -O ./lib/ant-salesforce.jar
+    - name: Verify lib directory
+      run: ls -al ./lib
 
     - name: Deploy to Environment
       env:
@@ -42,12 +38,21 @@ jobs:
         SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
         ENV: ${{ github.ref_name }}
       run: |
+        # Set environment based on branch
         case ${{ github.ref_name }} in
           Dev1|SIT|UAT)
             export ENV=sandbox
+            export SF_SERVERURL=$SF_SERVERURL_SANDBOX
             ;;
           PROD)
             export ENV=prod
+            export SF_SERVERURL=$SF_SERVERURL_PROD
             ;;
         esac
+
+        # Print environment variables for debugging
+        echo "Using environment: $ENV"
+        echo "Salesforce server URL: $SF_SERVERURL"
+
+        # Run the Ant build
         ant -lib ./lib -f build.xml deploy -Denv=${ENV}
