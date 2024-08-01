@@ -27,32 +27,42 @@ jobs:
         sudo apt-get update
         sudo apt-get install ant -y
 
-    - name: Verify lib directory
-      run: ls -al ./lib
+    - name: Create and Verify lib Directory
+      run: |
+        mkdir -p ./lib
+        ls -al ./lib
+
+    - name: Verify ant-salesforce.jar
+      run: |
+        if [ ! -f ./lib/ant-salesforce.jar ]; then
+          echo "ant-salesforce.jar not found in lib directory"
+          exit 1
+        fi
 
     - name: Deploy to Environment
       env:
         SF_SERVERURL_PROD: ${{ secrets.SF_SERVERURL_PROD }}
         SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
-        SF_USERNAME: ${{ secrets.SF_USERNAME }}
-        SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
+        SF_USERNAME_SANDBOX: ${{ secrets.SF_USERNAME_SANDBOX }}
+        SF_PASSWORD_SANDBOX: ${{ secrets.SF_PASSWORD_SANDBOX }}
+        SF_USERNAME_PROD: ${{ secrets.SF_USERNAME_PROD }}
+        SF_PASSWORD_PROD: ${{ secrets.SF_PASSWORD_PROD }}
         ENV: ${{ github.ref_name }}
       run: |
-        # Set environment based on branch
         case ${{ github.ref_name }} in
           Dev1|SIT|UAT)
-            export ENV=sandbox
+            export SF_USERNAME=$SF_USERNAME_SANDBOX
+            export SF_PASSWORD=$SF_PASSWORD_SANDBOX
             export SF_SERVERURL=$SF_SERVERURL_SANDBOX
             ;;
           PROD)
-            export ENV=prod
+            export SF_USERNAME=$SF_USERNAME_PROD
+            export SF_PASSWORD=$SF_PASSWORD_PROD
             export SF_SERVERURL=$SF_SERVERURL_PROD
             ;;
         esac
 
-        # Print environment variables for debugging
         echo "Using environment: $ENV"
         echo "Salesforce server URL: $SF_SERVERURL"
 
-        # Run the Ant build
-        ant -lib ./lib -f build.xml deploy -Denv=${ENV}
+        ant -lib ./lib -f build.xml deploy -Dsf.username=$SF_USERNAME -Dsf.password=$SF_PASSWORD -Dsf.serverurl=$SF_SERVERURL
