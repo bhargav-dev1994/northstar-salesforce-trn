@@ -20,41 +20,31 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '11'
+        distribution: 'adopt'
 
     - name: Setup Ant
       run: |
         sudo apt-get update
         sudo apt-get install ant -y
 
+    - name: Download Salesforce Ant Migration Tool
+      run: |
+        wget -q https://gs0.salesforce.com/dwnld/SfdcAnt/salesforce_ant_49.0.zip -O /tmp/salesforce_ant.zip
+        unzip -qq /tmp/salesforce_ant.zip -d /tmp/
+        mkdir -p ./lib
+        cp /tmp/salesforce_ant_49.0/ant-salesforce.jar ./lib/
+
     - name: Deploy to Environment
-      env:
-        SF_SERVERURL_PROD: ${{ secrets.SF_SERVERURL_PROD }}
-        SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
       run: |
         case ${{ github.ref_name }} in
-          Dev1)
-            SF_USERNAME=${{ secrets.SF_USERNAME_DEV }}
-            SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV }}
-            SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}
-            ;;
-          SIT)
-            SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}
-            SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}
-            SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}
-            ;;
-          UAT)
-            SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}
-            SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}
-            SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}
+          Dev1|SIT|UAT)
+            export ANT_ENV=sandbox
             ;;
           PROD)
-            SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}
-            SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}
-            SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}
+            export ANT_ENV=prod
             ;;
         esac
-        ant -f build.xml authenticate -Dsf.username=$SF_USERNAME -Dsf.password=$SF_PASSWORD -Dsf.serverurl=$SF_SERVERURL
-        ant -f build.xml deploy -Dsf.username=$SF_USERNAME -Dsf.password=$SF_PASSWORD -Dsf.serverurl=$SF_SERVERURL
+        ant -lib ./lib -f build.xml deploy -Denv.${ANT_ENV}=${{ secrets.SF_ENV }}
 
     # - name: Notify ServiceNow of Deployment Success
     #   if: success()
