@@ -28,24 +28,29 @@ jobs:
 
     - name: Deploy to Environment
       env:
-        SF_SERVERURL: ${{ secrets.SF_SERVERURL }}
+        SF_SERVERURL_PROD: ${{ secrets.SF_SERVERURL_PROD }}
+        SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
       run: |
         case ${{ github.ref_name }} in
           Dev1)
             SF_USERNAME=${{ secrets.SF_USERNAME_DEV }}
             SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV }}
+            SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}
             ;;
           SIT)
             SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}
             SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}
+            SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}
             ;;
           UAT)
             SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}
             SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}
+            SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}
             ;;
           PROD)
             SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}
             SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}
+            SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}
             ;;
         esac
         ant -f build.xml authenticate -Dsf.username=$SF_USERNAME -Dsf.password=$SF_PASSWORD -Dsf.serverurl=$SF_SERVERURL
