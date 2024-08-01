@@ -1,26 +1,29 @@
-<?xml version="1.0"?>
 <project name="Salesforce Deployment" default="deploy" basedir=".">
-
-  <!-- Define properties for Salesforce CLI -->
-  <property name="sfdx.path" value="sfdx"/>
-  <property name="deploy.source" value="src"/>
-  <property name="retrieve.source" value="src"/>
-  <property name="org.alias" value="target-org-alias"/>
-
-  <!-- Target to deploy to Salesforce using sfdx -->
-  <target name="deploy">
-    <echo message="Deploying to Salesforce..."/>
-    <exec executable="${sfdx.path}">
-      <arg line="force:source:deploy -p ${deploy.source} -u ${org.alias}"/>
-    </exec>
-  </target>
-
-  <!-- Target to retrieve from Salesforce using sfdx -->
-  <target name="retrieve">
-    <echo message="Retrieving from Salesforce..."/>
-    <exec executable="${sfdx.path}">
-      <arg line="force:source:retrieve -p ${retrieve.source} -u ${org.alias}"/>
-    </exec>
-  </target>
-
-</project>
+    <!-- Define properties for Salesforce CLI -->
+    <property name="sfdx.install.script" value="install_sfdx.bat"/>
+    <property name="deploy.source" value="src"/>
+    <property name="org.alias" value="target-org-alias"/>
+    
+    <!-- Target to install Salesforce CLI -->
+    <target name="install-sfdx">
+      <echo message="Checking and installing Salesforce CLI if necessary..."/>
+      <exec executable="${sfdx.install.script}" failonerror="true"/>
+    </target>
+  
+    <!-- Target to deploy to Salesforce using sfdx -->
+    <target name="deploy" depends="install-sfdx">
+      <echo message="Deploying to Salesforce..."/>
+      <exec executable="sfdx" failonerror="true">
+        <arg line="force:source:deploy -p ${deploy.source} -u ${org.alias}"/>
+      </exec>
+    </target>
+  
+    <!-- Target to retrieve from Salesforce using sfdx -->
+    <target name="retrieve" depends="install-sfdx">
+      <echo message="Retrieving from Salesforce..."/>
+      <exec executable="sfdx" failonerror="true">
+        <arg line="force:source:retrieve -p ${deploy.source} -u ${org.alias}"/>
+      </exec>
+    </target>
+  </project>
+  
