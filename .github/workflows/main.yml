@@ -38,27 +38,16 @@ jobs:
       env:
         SF_SERVERURL_PROD: ${{ secrets.SF_SERVERURL_PROD }}
         SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
+        SF_USERNAME: ${{ secrets.SF_USERNAME }}
+        SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
+        ENV: ${{ github.ref_name }}
       run: |
         case ${{ github.ref_name }} in
           Dev1|SIT|UAT)
-            export ANT_ENV=sandbox
+            export ENV=sandbox
             ;;
           PROD)
-            export ANT_ENV=prod
+            export ENV=prod
             ;;
         esac
-        ant -lib ./lib -f build.xml deploy -Denv=${ANT_ENV}
-
-    # - name: Notify ServiceNow of Deployment Success
-    #   if: success()
-    #   run: |
-    #     curl -X POST "https://<your_instance>.service-now.com/api/now/table/incident" \
-    #     --user "${{ secrets.SN_USERNAME }}:${{ secrets.SN_PASSWORD }}" \
-    #     --header "Content-Type: application/json" \
-    #     --data '{
-    #       "short_description": "Deployment to ${{ github.ref_name }} Environment Successful",
-    #       "description": "The deployment to the ${{ github.ref_name }} environment has been completed successfully.",
-    #       "category": "Software",
-    #       "subcategory": "Deployment",
-    #       "u_environment": "${{ github.ref_name }}"
-    #     }'
+        ant -lib ./lib -f build.xml deploy -Denv=${ENV}
