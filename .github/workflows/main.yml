@@ -30,6 +30,12 @@ jobs:
     - name: Install Salesforce CLI
       run: npm install --global sfdx-cli
 
+    - name: Add Salesforce CLI to Path
+      shell: powershell
+      run: |
+        $env:PATH += ";C:\Users\runneradmin\AppData\Roaming\npm"
+        echo $env:PATH
+
     - name: Verify ant-salesforce.jar
       shell: bash
       run: |
