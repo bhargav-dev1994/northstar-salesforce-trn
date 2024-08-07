@@ -22,10 +22,13 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
     - name: Install Salesforce CLI
-      run: |
-        Invoke-WebRequest -Uri 'https://developer.salesforce.com/media/salesforce-cli/sfdx-cli/channels/stable/sfdx-cli-7.107.0-e6ca93e18b-windows-x64.exe' -OutFile 'sfdx-cli.exe'
-        Start-Process 'sfdx-cli.exe' -ArgumentList '/S' -NoNewWindow -Wait
+      run: npm install --global sfdx-cli
 
     - name: Verify ant-salesforce.jar
       shell: bash
