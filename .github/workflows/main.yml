@@ -22,13 +22,10 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
-    - name: Install msys2
+    - name: Install Salesforce CLI
       run: |
-        choco install -y msys2
-        refreshenv
-        C:\msys64\usr\bin\bash -lc "pacman -Syuu --noconfirm"
-        C:\msys64\usr\bin\bash -lc "pacman -S --noconfirm base-devel gcc vim"
-        echo "msys2 installed successfully"
+        Invoke-WebRequest -Uri 'https://developer.salesforce.com/media/salesforce-cli/sfdx-cli/channels/stable/sfdx-cli-7.107.0-e6ca93e18b-windows-x64.exe' -OutFile 'sfdx-cli.exe'
+        Start-Process 'sfdx-cli.exe' -ArgumentList '/S' -NoNewWindow -Wait
 
     - name: Verify ant-salesforce.jar
       shell: bash
@@ -72,10 +69,6 @@ jobs:
             echo "ORG_ALIAS=prod" >> $GITHUB_ENV
             ;;
         esac
-
-    - name: Run Salesforce CLI Installation
-      shell: bash
-      run: ./install_sfdx.bat
 
     - name: Run Ant Deployment
       shell: bash
