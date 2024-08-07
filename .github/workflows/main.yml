@@ -10,7 +10,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout repository
@@ -22,11 +22,6 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
-    - name: Setup Ant
-      run: |
-        sudo apt-get update
-        sudo apt-get install ant -y
-
     - name: Verify ant-salesforce.jar
       run: |
         if [ ! -f ./lib/ant-salesforce.jar ]; then
@@ -34,30 +29,42 @@ jobs:
           exit 1
         fi
 
-    - name: Deploy to Environment
-      env:
-        SF_SERVERURL_PROD: ${{ secrets.SF_SERVERURL_PROD }}
-        SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
-        SF_USERNAME_SANDBOX: ${{ secrets.SF_USERNAME_SANDBOX }}
-        SF_PASSWORD_SANDBOX: ${{ secrets.SF_PASSWORD_SANDBOX }}
-        SF_USERNAME_PROD: ${{ secrets.SF_USERNAME_PROD }}
-        SF_PASSWORD_PROD: ${{ secrets.SF_PASSWORD_PROD }}
-        ENV: ${{ github.ref_name }}
+    - name: Set Environment Variables
       run: |
+        echo "Setting environment variables..."
         case ${{ github.ref_name }} in
           Dev1|SIT|UAT)
-            export SF_USERNAME=$SF_USERNAME_SANDBOX
-            export SF_PASSWORD=$SF_PASSWORD_SANDBOX
-            export SF_SERVERURL=$SF_SERVERURL_SANDBOX
+            echo "SF_USERNAME_SANDBOX=${{ secrets.SF_USERNAME_SANDBOX }}" >> $GITHUB_ENV
+            echo "SF_PASSWORD_SANDBOX=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $GITHUB_ENV
+            echo "SF_SERVERURL_SANDBOX=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
             ;;
-          master)  # Ensure this matches your main branch name
-            export SF_USERNAME=$SF_USERNAME_PROD
-            export SF_PASSWORD=$SF_PASSWORD_PROD
-            export SF_SERVERURL=$SF_SERVERURL_PROD
+          master)
+            echo "SF_USERNAME_PROD=${{ secrets.SF_USERNAME_PROD }}" >> $GITHUB_ENV
+            echo "SF_PASSWORD_PROD=${{ secrets.SF_PASSWORD_PROD }}" >> $GITHUB_ENV
+            echo "SF_SERVERURL_PROD=${{ secrets.SF_SERVERURL_PROD }}" >> $GITHUB_ENV
             ;;
         esac
 
-        echo "Using environment: $ENV"
-        echo "Salesforce server URL: $SF_SERVERURL"
+    - name: Set Org Alias
+      run: |
+        case ${{ github.ref_name }} in
+          Dev1)
+            echo "ORG_ALIAS=Dev1" >> $GITHUB_ENV
+            ;;
+          SIT)
+            echo "ORG_ALIAS=SIT" >> $GITHUB_ENV
+            ;;
+          UAT)
+            echo "ORG_ALIAS=UAT" >> $GITHUB_ENV
+            ;;
+          master)
+            echo "ORG_ALIAS=prod" >> $GITHUB_ENV
+            ;;
+        esac
 
-        ant -lib ./lib -f build.xml deploy -Dsf.username=$SF_USERNAME -Dsf.password=$SF_PASSWORD -Dsf.serverurl=$SF_SERVERURL
+    - name: Run Salesforce CLI Installation
+      run: install_sfdx.bat
+
+    - name: Run Ant Deployment
+      run: |
+        ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
