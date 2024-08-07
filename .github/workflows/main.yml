@@ -22,7 +22,16 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
+    - name: Install msys2
+      run: |
+        choco install -y msys2
+        refreshenv
+        C:\msys64\usr\bin\bash -lc "pacman -Syuu --noconfirm"
+        C:\msys64\usr\bin\bash -lc "pacman -S --noconfirm base-devel gcc vim"
+        echo "msys2 installed successfully"
+
     - name: Verify ant-salesforce.jar
+      shell: bash
       run: |
         if [ ! -f ./lib/ant-salesforce.jar ]; then
           echo "ant-salesforce.jar not found in lib directory"
@@ -66,5 +75,6 @@ jobs:
       run: install_sfdx.bat
 
     - name: Run Ant Deployment
+      shell: bash
       run: |
         ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
