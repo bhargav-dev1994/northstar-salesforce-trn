@@ -39,22 +39,24 @@ jobs:
         fi
 
     - name: Set Environment Variables
+      shell: bash
       run: |
         echo "Setting environment variables..."
         case ${{ github.ref_name }} in
           Dev1|SIT|UAT)
-            echo "SF_USERNAME_SANDBOX=${{ secrets.SF_USERNAME_SANDBOX }}" >> $GITHUB_ENV
-            echo "SF_PASSWORD_SANDBOX=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $GITHUB_ENV
-            echo "SF_SERVERURL_SANDBOX=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
+            echo "SF_USERNAME=${{ secrets.SF_USERNAME_SANDBOX }}" >> $GITHUB_ENV
+            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $GITHUB_ENV
+            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
             ;;
           master)
-            echo "SF_USERNAME_PROD=${{ secrets.SF_USERNAME_PROD }}" >> $GITHUB_ENV
-            echo "SF_PASSWORD_PROD=${{ secrets.SF_PASSWORD_PROD }}" >> $GITHUB_ENV
-            echo "SF_SERVERURL_PROD=${{ secrets.SF_SERVERURL_PROD }}" >> $GITHUB_ENV
+            echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $GITHUB_ENV
+            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $GITHUB_ENV
+            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $GITHUB_ENV
             ;;
         esac
 
     - name: Set Org Alias
+      shell: bash
       run: |
         case ${{ github.ref_name }} in
           Dev1)
@@ -72,7 +74,8 @@ jobs:
         esac
 
     - name: Run Salesforce CLI Installation
-      run: install_sfdx.bat
+      shell: bash
+      run: ./install_sfdx.bat
 
     - name: Run Ant Deployment
       shell: bash
