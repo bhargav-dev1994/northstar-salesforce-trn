@@ -6,7 +6,7 @@ on:
       - Dev1
       - SIT
       - UAT
-      - PROD
+      - master  # Ensure this matches your main branch name
 
 jobs:
   deploy:
@@ -22,42 +22,49 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
-    - name: Setup Ant
-      run: |
-        choco install ant -y
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
 
-    - name: Setup Salesforce DX CLI
-      run: |
-        Invoke-WebRequest -Uri https://developer.salesforce.com/media/salesforce-cli/sfdx-cli/channels/stable/sfdx-cli-windows-x64.exe -OutFile sfdx-cli.exe
-        ./sfdx-cli.exe /quiet /norestart
-        $env:Path += ";C:\Program Files\sfdx\bin"
-        sfdx --version
+    - name: Install Salesforce CLI
+      run: npm install --global sfdx-cli
 
     - name: Verify ant-salesforce.jar
       run: |
-        if (!(Test-Path -Path ./lib/ant-salesforce.jar)) {
-          Write-Error "ant-salesforce.jar not found in lib directory"
+        if (!(Test-Path -Path "./lib/ant-salesforce.jar")) {
+          Write-Host "ant-salesforce.jar not found in lib directory"
           exit 1
         }
 
-    - name: Deploy to Environment
-      env:
-        SF_ENV: ${{ github.ref_name }}
+    - name: Set Environment Variables
       run: |
-        case ${{ github.ref_name }} in
-          Dev1|SIT|UAT)
-            $env:SF_USERNAME=$(grep "sf.username.sandbox" build.properties | cut -d'=' -f2)
-            $env:SF_PASSWORD=$(grep "sf.password.sandbox" build.properties | cut -d'=' -f2)
-            $env:SF_SERVERURL=$(grep "sf.serverurl.sandbox" build.properties | cut -d'=' -f2)
-            ;;
-          PROD)
-            $env:SF_USERNAME=$(grep "sf.username.prod" build.properties | cut -d'=' -f2)
-            $env:SF_PASSWORD=$(grep "sf.password.prod" build.properties | cut -d'=' -f2)
-            $env:SF_SERVERURL=$(grep "sf.serverurl.prod" build.properties | cut -d'=' -f2)
-            ;;
-        esac
+        Write-Host "Setting environment variables..."
+        if ($env:GITHUB_REF_NAME -eq "Dev1" -or $env:GITHUB_REF_NAME -eq "SIT" -or $env:GITHUB_REF_NAME -eq "UAT") {
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SANDBOX }}" >> $env:GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $env:GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "master") {
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $env:GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $env:GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $env:GITHUB_ENV
+        }
 
-        echo "Using environment: $env:SF_ENV"
-        echo "Salesforce server URL: $env:SF_SERVERURL"
+    - name: Set Org Alias
+      run: |
+        if ($env:GITHUB_REF_NAME -eq "Dev1") {
+          echo "ORG_ALIAS=Dev1" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "SIT") {
+          echo "ORG_ALIAS=SIT" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "UAT") {
+          echo "ORG_ALIAS=UAT" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "master") {
+          echo "ORG_ALIAS=prod" >> $env:GITHUB_ENV
+        }
 
-        ant -lib ./lib -f build.xml deploy -Dsf.username=$env:SF_USERNAME -Dsf.password=$env:SF_PASSWORD -Dsf.serverurl=$env:SF_SERVERURL
+    - name: Print PATH for Debugging
+      run: echo $env:PATH
+
+    - name: Run Ant Deployment
+      run: |
+        ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
