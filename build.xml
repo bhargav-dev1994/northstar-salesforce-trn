@@ -1,21 +1,19 @@
-<project name="Salesforce Deployment" default="deploy" basedir=".">
-  <!-- Define properties for Salesforce CLI -->
-  <property name="deploy.source" value="src"/>
-  <property name="org.alias" value="target-org-alias"/>
+<project name="Salesforce Deployment" basedir="." default="deploy">
+  <!-- Load properties from build.properties -->
+  <property file="build.properties"/>
 
-  <!-- Target to deploy to Salesforce using sfdx -->
   <target name="deploy">
-    <echo message="Deploying to Salesforce..."/>
-    <exec executable="sfdx" failonerror="true" osfamily="windows">
-      <arg line="force:source:deploy -p ${deploy.source} -u ${org.alias}"/>
-    </exec>
-  </target>
-
-  <!-- Target to retrieve from Salesforce using sfdx -->
-  <target name="retrieve">
-    <echo message="Retrieving from Salesforce..."/>
-    <exec executable="sfdx" failonerror="true" osfamily="windows">
-      <arg line="force:source:retrieve -p ${deploy.source} -u ${org.alias}"/>
-    </exec>
+      <echo message="Deploying to Salesforce..."/>
+      <sf:deploy
+          username="${sf.username}"
+          password="${sf.password}"
+          serverurl="${sf.serverurl}"
+          sessionId="${sf.sessionId}"
+          deployRoot="src"
+          rollbackOnError="true"
+          checkOnly="false"
+          ignoreWarnings="false"
+          testLevel="RunLocalTests"
+      />
   </target>
 </project>

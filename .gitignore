@@ -16,8 +16,6 @@ dist/
 # Log files
 *.log
 
-
-
 # Maven
 target/
 dist/
@@ -41,4 +39,8 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
-package.xml
+
+# Salesforce deployment specific exceptions
+!build.xml
+!build.properties
+!lib/ant-salesforce.jar
