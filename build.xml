@@ -1,19 +1,23 @@
-<project name="Salesforce Deployment" basedir="." default="deploy">
-  <!-- Load properties from build.properties -->
+<project name="SalesforceDeployment" default="deploy" xmlns:sf="antlib:com.salesforce.ant">
+
+  <!-- Load Salesforce Ant tasks -->
+  <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce.ant">
+      <classpath>
+          <pathelement location="lib/ant-salesforce.jar"/>
+      </classpath>
+  </taskdef>
+
+  <!-- Load properties from build.properties file -->
   <property file="build.properties"/>
 
+  <!-- Deployment target -->
   <target name="deploy">
-      <echo message="Deploying to Salesforce..."/>
       <sf:deploy
           username="${sf.username}"
           password="${sf.password}"
           serverurl="${sf.serverurl}"
-          sessionId="${sf.sessionId}"
           deployRoot="src"
-          rollbackOnError="true"
-          checkOnly="false"
-          ignoreWarnings="false"
-          testLevel="RunLocalTests"
-      />
+          testLevel="RunLocalTests"/>
   </target>
+
 </project>
