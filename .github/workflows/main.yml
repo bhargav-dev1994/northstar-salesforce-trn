@@ -62,9 +62,6 @@ jobs:
           echo "ORG_ALIAS=prod" >> $env:GITHUB_ENV
         }
 
-    - name: Print PATH for Debugging
-      run: echo $env:PATH
-
     - name: Run Ant Deployment
       run: |
         ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
