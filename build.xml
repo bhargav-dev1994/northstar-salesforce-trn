@@ -10,10 +10,14 @@
   <!-- Add more configurations as needed -->
 
   <target name="deploy">
-      <echo message="Deploying to Salesforce..."/>
-      <deploy username="${sf.username}" 
-              password="${sf.password}" 
-              serverurl="${sf.serverurl}" 
-              deployRoot="deploy"/>
-  </target>
+    <sf:deploy
+        username="${sf.username}"
+        password="${sf.password}"
+        serverurl="${sf.serverurl}"
+        deployRoot="path/to/your/deployRoot"
+        wait="true"
+        pollWait="1000"
+        testLevel="RunAllTestsInOrg"
+        rollbackOnError="true"/>
+</target>
 </project>
