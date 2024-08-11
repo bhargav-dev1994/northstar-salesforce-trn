@@ -1,18 +1,23 @@
-<project name="SalesforceDeployment" default="deploy" xmlns:sf="antlib:com.salesforce.ant">
+<project name="Salesforce Deployment" default="deploy" basedir=".">
     
+  <!-- Define the namespace for Salesforce Ant tasks -->
+  <taskdef name="sf:deploy" 
+           classname="com.salesforce.ant.DeployTask" 
+           classpath="lib/ant-salesforce.jar"/>
+  
   <target name="deploy">
-      <echo message="Deploying to Salesforce..." />
-
-      <sf:deploy
-          username="${sf.username}"
-          password="${sf.password}"
-          serverurl="${sf.serverurl}"
-          deployRoot="path/to/your/source/folder" 
-          checkOnly="false"
-          runTests="false"
-          rollbackOnError="true"
-          pollWaitMillis="10000"
-          maxPoll="100"
-      />
+      <!-- Print a message to indicate deployment is starting -->
+      <echo message="Deploying to Salesforce..."/>
+      
+      <!-- Example of a deploy task -->
+      <sf:deploy 
+          username="${sf.username}" 
+          password="${sf.password}" 
+          serverurl="${sf.serverurl}" 
+          deployRoot="path/to/deploy/root" 
+          alias="${org.alias}">
+          <!-- Additional configuration here -->
+      </sf:deploy>
   </target>
+
 </project>
