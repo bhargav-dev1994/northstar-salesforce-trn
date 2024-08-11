@@ -1,14 +1,19 @@
-<project name="SalesforceDeployment" basedir="." xmlns:sf="antlib:com.salesforce.ant">
+<project name="Deploy" default="deploy" basedir=".">
+  <!-- Define the location of the Salesforce Ant library -->
+  <taskdef name="deploy" 
+           classname="com.salesforce.ant.DeployTask" 
+           classpath="lib/ant-salesforce.jar"/>
+  <taskdef name="retrieve" 
+           classname="com.salesforce.ant.RetrieveTask" 
+           classpath="lib/ant-salesforce.jar"/>
 
-  <property file="build.properties"/>
+  <!-- Add more configurations as needed -->
 
   <target name="deploy">
       <echo message="Deploying to Salesforce..."/>
-      <sf:deploy 
-          username="${sf.username}" 
-          password="${sf.password}" 
-          serverurl="${sf.serverurl}" 
-          deployRoot="deploy" 
-          ignoreWarnings="true"/>
+      <deploy username="${sf.username}" 
+              password="${sf.password}" 
+              serverurl="${sf.serverurl}" 
+              deployRoot="deploy"/>
   </target>
 </project>
