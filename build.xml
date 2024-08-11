@@ -1,15 +1,15 @@
 <project name="Salesforce Deployment" default="deploy" basedir=".">
 
   <!-- Define the namespace for Salesforce Ant tasks -->
-  <taskdef name="sf:deploy" 
-           classname="com.salesforce.ant.DeployTask" 
+  <taskdef uri="antlib:com.salesforce.ant" 
+           resource="com/salesforce/ant/antlib.xml" 
            classpath="lib/ant-salesforce.jar"/>
-  
+
   <!-- Define the default target -->
   <target name="deploy">
       <!-- Print a message to indicate deployment is starting -->
       <echo message="Deploying to Salesforce..."/>
-      
+
       <!-- Deploy task -->
       <sf:deploy 
           username="${sf.username}" 
