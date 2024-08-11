@@ -6,7 +6,7 @@ on:
       - Dev1
       - SIT
       - UAT
-      - master
+      - master  # Ensure this matches your main branch name
 
 jobs:
   deploy:
@@ -40,39 +40,31 @@ jobs:
     - name: Set Environment Variables
       run: |
         Write-Host "Setting environment variables..."
-        switch ($env:GITHUB_REF_NAME) {
-          "Dev1" {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV1 }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          }
-          "SIT" {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          }
-          "UAT" {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          }
-          "master" {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $env:GITHUB_ENV
-          }
+        if ($env:GITHUB_REF_NAME -eq "Dev1" -or $env:GITHUB_REF_NAME -eq "SIT" -or $env:GITHUB_REF_NAME -eq "UAT") {
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SANDBOX }}" >> $env:GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $env:GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "master") {
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $env:GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $env:GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $env:GITHUB_ENV
         }
 
     - name: Set Org Alias
       run: |
-        switch ($env:GITHUB_REF_NAME) {
-          "Dev1" { echo "ORG_ALIAS=Dev1" >> $env:GITHUB_ENV }
-          "SIT" { echo "ORG_ALIAS=SIT" >> $env:GITHUB_ENV }
-          "UAT" { echo "ORG_ALIAS=UAT" >> $env:GITHUB_ENV }
-          "master" { echo "ORG_ALIAS=prod" >> $env:GITHUB_ENV }
+        if ($env:GITHUB_REF_NAME -eq "Dev1") {
+          echo "ORG_ALIAS=Dev1" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "SIT") {
+          echo "ORG_ALIAS=SIT" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "UAT") {
+          echo "ORG_ALIAS=UAT" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "master") {
+          echo "ORG_ALIAS=prod" >> $env:GITHUB_ENV
         }
 
+    - name: Print PATH for Debugging
+      run: echo $env:PATH
+
     - name: Run Ant Deployment
-        run: |
-          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
-      
+      run: |
+        ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
