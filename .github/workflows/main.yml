@@ -47,12 +47,8 @@ jobs:
           }
         shell: pwsh
 
-      - name: Prepare deployRoot
-        run: |
-          if (-Not (Test-Path -Path ./deployRoot)) { New-Item -ItemType Directory -Path ./deployRoot }
-
       - name: Deploy to Salesforce
         run: |
-          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ github.ref_name }}
+          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ github.ref_name }} -verbose
         env:
           JAVA_HOME: C:\hostedtoolcache\windows\Java_Adopt_jdk\11.0.24-8\x64
