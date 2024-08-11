@@ -26,9 +26,12 @@ jobs:
         run: |
           if (-Not (Test-Path -Path ./lib)) { New-Item -ItemType Directory -Path ./lib }
 
-      - name: Copy ant-salesforce.jar
+      - name: Download ant-salesforce.jar
         run: |
-          Copy-Item -Path ./lib/ant-salesforce.jar -Destination ./lib/ -Force
+          $jarPath = "./lib/ant-salesforce.jar"
+          if (-Not (Test-Path -Path $jarPath)) {
+            Invoke-WebRequest -Uri https://path-to-your-jar/ant-salesforce.jar -OutFile $jarPath
+          }
 
       - name: Set environment variables for Dev1
         if: github.ref == 'refs/heads/Dev1'
