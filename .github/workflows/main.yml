@@ -25,15 +25,11 @@ jobs:
       - name: Set up Ant
         run: |
           choco install ant -y
-          New-Item -ItemType Directory -Path ./lib
-          Copy-Item ./lib/ant-salesforce.jar ./lib/
+          New-Item -ItemType Directory -Path ./lib -Force
+          Copy-Item ./lib/ant-salesforce.jar ./lib/ -Force
 
       - name: Deploy to Salesforce
         run: |
-          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
+          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets['SF_USERNAME_' + github.ref_name] }} -Dsf.password=${{ secrets['SF_PASSWORD_' + github.ref_name] }} -Dsf.serverurl=${{ secrets['SF_SERVERURL_' + (github.ref_name == 'Master' ? 'PROD' : 'SANDBOX')] }} -Dorg.alias=${{ github.ref_name }}
         env:
           JAVA_HOME: C:\hostedtoolcache\windows\Java_Adopt_jdk\11.0.24-8\x64
-          SF_USERNAME: ${{ secrets['SF_USERNAME_' + github.ref_name] }}
-          SF_PASSWORD: ${{ secrets['SF_PASSWORD_' + github.ref_name] }}
-          SF_SERVERURL: ${{ secrets['SF_SERVERURL_' + (github.ref_name == 'Master' ? 'PROD' : 'SANDBOX')] }}
-          ORG_ALIAS: ${{ github.ref_name }}
