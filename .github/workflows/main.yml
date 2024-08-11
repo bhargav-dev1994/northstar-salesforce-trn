@@ -6,62 +6,34 @@ on:
       - Dev1
       - SIT
       - UAT
-      - master
+      - Master
 
 jobs:
   deploy:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Setup Java
-      uses: actions/setup-java@v2
-      with:
-        java-version: '11'
-        distribution: 'adopt'
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
 
-    - name: Install Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
+      - name: Set up Ant
+        run: |
+          choco install ant -y
+          New-Item -ItemType Directory -Path ./lib
+          Copy-Item ./lib/ant-salesforce.jar ./lib/
 
-    - name: Verify ant-salesforce.jar
-      run: |
-        if (!(Test-Path -Path "./lib/ant-salesforce.jar")) {
-          Write-Host "ant-salesforce.jar not found in lib directory"
-          exit 1
-        }
-
-    - name: Set Environment Variables
-      run: |
-        Write-Host "Setting environment variables..."
-        if ($env:GITHUB_REF_NAME -eq "Dev1" -or $env:GITHUB_REF_NAME -eq "SIT" -or $env:GITHUB_REF_NAME -eq "UAT") {
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SANDBOX }}" >> $env:GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $env:GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-        } elseif ($env:GITHUB_REF_NAME -eq "master") {
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $env:GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $env:GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $env:GITHUB_ENV
-        }
-
-    - name: Set Org Alias
-      run: |
-        if ($env:GITHUB_REF_NAME -eq "Dev1") {
-          echo "ORG_ALIAS=Dev1" >> $env:GITHUB_ENV
-        } elseif ($env:GITHUB_REF_NAME -eq "SIT") {
-          echo "ORG_ALIAS=SIT" >> $env:GITHUB_ENV
-        } elseif ($env:GITHUB_REF_NAME -eq "UAT") {
-          echo "ORG_ALIAS=UAT" >> $env:GITHUB_ENV
-        } elseif ($env:GITHUB_REF_NAME -eq "master") {
-          echo "ORG_ALIAS=prod" >> $env:GITHUB_ENV
-        }
-
-    - name: Print PATH for Debugging
-      run: echo $env:PATH
-
-    - name: Run Ant Deployment
-      run: |
-        ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
+      - name: Deploy to Salesforce
+        run: |
+          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
+        env:
+          JAVA_HOME: C:\hostedtoolcache\windows\Java_Adopt_jdk\11.0.24-8\x64
+          SF_USERNAME: ${{ secrets['SF_USERNAME_' + github.ref_name] }}
+          SF_PASSWORD: ${{ secrets['SF_PASSWORD_' + github.ref_name] }}
+          SF_SERVERURL: ${{ secrets['SF_SERVERURL_' + (github.ref_name == 'Master' ? 'PROD' : 'SANDBOX')] }}
+          ORG_ALIAS: ${{ github.ref_name }}
