@@ -1,4 +1,4 @@
-name: name: Salesforce Deployment
+name: Salesforce Deployment
 
 on:
   push:
