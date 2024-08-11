@@ -33,33 +33,25 @@ jobs:
             Invoke-WebRequest -Uri https://path-to-your-jar/ant-salesforce.jar -OutFile $jarPath
           }
 
-      - name: Set environment variables for Dev1
-        if: github.ref == 'refs/heads/Dev1'
+      - name: Set environment variables
         run: |
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV1 }}" >> $GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
-
-      - name: Set environment variables for SIT
-        if: github.ref == 'refs/heads/SIT'
-        run: |
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}" >> $GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}" >> $GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
-
-      - name: Set environment variables for UAT
-        if: github.ref == 'refs/heads/UAT'
-        run: |
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}" >> $GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}" >> $GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
-
-      - name: Set environment variables for Master
-        if: github.ref == 'refs/heads/Master'
-        run: |
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $GITHUB_ENV
+          if (github.ref == 'refs/heads/Dev1') {
+            echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $GITHUB_ENV
+            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV1 }}" >> $GITHUB_ENV
+            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
+          } elseif (github.ref == 'refs/heads/SIT') {
+            echo "SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}" >> $GITHUB_ENV
+            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}" >> $GITHUB_ENV
+            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
+          } elseif (github.ref == 'refs/heads/UAT') {
+            echo "SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}" >> $GITHUB_ENV
+            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}" >> $GITHUB_ENV
+            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
+          } elseif (github.ref == 'refs/heads/Master') {
+            echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $GITHUB_ENV
+            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $GITHUB_ENV
+            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $GITHUB_ENV
+          }
 
       - name: Deploy to Salesforce
         run: |
