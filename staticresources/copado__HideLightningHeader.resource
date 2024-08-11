@@ -1,1 +1,0 @@
-.slds-page-header.header.flexipageHeader { display: none !important; }
