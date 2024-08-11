@@ -6,7 +6,7 @@ on:
       - Dev1
       - SIT
       - UAT
-      - master  # Ensure this matches your main branch name
+      - master
 
 jobs:
   deploy:
@@ -20,45 +20,48 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '11'
-        distribution: 'adopt'  # Make sure this is provided
+        distribution: 'adopt'
 
     - name: Install Node.js
       uses: actions/setup-node@v2
       with:
         node-version: '14'
 
-
-    - name: Install Salesforce CLI
-      run: npm install --global sfdx-cli
-
-    - name: Download ant-salesforce.jar
+    - name: Verify ant-salesforce.jar
       run: |
-        Invoke-WebRequest -Uri https://gs0.salesforce.com/dwnld/SalesforceAnt/ant-salesforce.jar -OutFile ./lib/ant-salesforce.jar
+        if (!(Test-Path -Path "./lib/ant-salesforce.jar")) {
+          Write-Host "ant-salesforce.jar not found in lib directory"
+          exit 1
+        }
 
     - name: Set Environment Variables
       run: |
-        if ($env:GITHUB_REF_NAME -eq "Dev1") {
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $env:GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV1 }}" >> $env:GITHUB_ENV
+        Write-Host "Setting environment variables..."
+        if ($env:GITHUB_REF_NAME -eq "Dev1" -or $env:GITHUB_REF_NAME -eq "SIT" -or $env:GITHUB_REF_NAME -eq "UAT") {
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SANDBOX }}" >> $env:GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $env:GITHUB_ENV
           echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          echo "ORG_ALIAS=Dev1" >> $env:GITHUB_ENV
-        } elseif ($env:GITHUB_REF_NAME -eq "SIT") {
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}" >> $env:GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}" >> $env:GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          echo "ORG_ALIAS=SIT" >> $env:GITHUB_ENV
-        } elseif ($env:GITHUB_REF_NAME -eq "UAT") {
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}" >> $env:GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}" >> $env:GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          echo "ORG_ALIAS=UAT" >> $env:GITHUB_ENV
         } elseif ($env:GITHUB_REF_NAME -eq "master") {
           echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $env:GITHUB_ENV
           echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $env:GITHUB_ENV
           echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $env:GITHUB_ENV
+        }
+
+    - name: Set Org Alias
+      run: |
+        if ($env:GITHUB_REF_NAME -eq "Dev1") {
+          echo "ORG_ALIAS=Dev1" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "SIT") {
+          echo "ORG_ALIAS=SIT" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "UAT") {
+          echo "ORG_ALIAS=UAT" >> $env:GITHUB_ENV
+        } elseif ($env:GITHUB_REF_NAME -eq "master") {
           echo "ORG_ALIAS=prod" >> $env:GITHUB_ENV
         }
 
-        - name: Run Ant Deployment with Verbose Logging
-        run: ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }} -v
-      
+    - name: Print PATH for Debugging
+      run: echo $env:PATH
+
+    - name: Run Ant Deployment
+      run: |
+        ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
