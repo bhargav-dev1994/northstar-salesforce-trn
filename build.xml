@@ -1,23 +1,20 @@
-<project name="SalesforceDeployment" default="deploy" xmlns:sf="antlib:com.salesforce.ant">
+<project name="SalesforceDeployment" default="deploy" basedir=".">
+  <property file="build.properties" />
 
-  <!-- Load Salesforce Ant tasks -->
-  <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce.ant">
-      <classpath>
-          <pathelement location="lib/ant-salesforce.jar"/>
-      </classpath>
-  </taskdef>
+  <!-- Define the directories and files -->
+  <property name="deployRoot" value="src" />
+  <!-- Uncomment and set if using a zip file -->
+  <!-- <property name="zipFile" value="path/to/your/deploy.zip" /> -->
 
-  <!-- Load properties from build.properties file -->
-  <property file="build.properties"/>
-
-  <!-- Deployment target -->
   <target name="deploy">
-      <sf:deploy
-          username="${sf.username}"
-          password="${sf.password}"
-          serverurl="${sf.serverurl}"
-          deployRoot="src"
-          testLevel="RunLocalTests"/>
+      <echo message="Deploying to Salesforce..."/>
+      <sf:deploy 
+          username="${sf.username}" 
+          password="${sf.password}" 
+          serverurl="${sf.serverurl}" 
+          deployRoot="${deployRoot}"
+          <!-- Uncomment if using zipFile -->
+          <!-- zipFile="${zipFile}" -->
+      />
   </target>
-
 </project>
