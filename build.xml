@@ -1,14 +1,18 @@
-<project name="SalesforceDeploy" default="deploy" basedir=".">
-  <property file="build.properties" />
-
+<project name="SalesforceDeployment" default="deploy" xmlns:sf="antlib:com.salesforce.ant">
+    
   <target name="deploy">
       <echo message="Deploying to Salesforce..." />
+
       <sf:deploy
           username="${sf.username}"
           password="${sf.password}"
           serverurl="${sf.serverurl}"
-          deployRoot="src" <!-- or your deployment root directory -->
-          testLevel="RunLocalTests"
+          deployRoot="path/to/your/source/folder" 
+          checkOnly="false"
+          runTests="false"
+          rollbackOnError="true"
+          pollWaitMillis="10000"
+          maxPoll="100"
       />
   </target>
 </project>
