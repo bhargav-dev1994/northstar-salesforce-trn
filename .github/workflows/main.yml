@@ -22,11 +22,13 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: Set up Ant
+      - name: Ensure lib directory exists
         run: |
-          choco install ant -y
-          mkdir -p ./lib
-          cp ./lib/ant-salesforce.jar ./lib/ -f
+          if (-Not (Test-Path -Path ./lib)) { New-Item -ItemType Directory -Path ./lib }
+
+      - name: Copy ant-salesforce.jar
+        run: |
+          Copy-Item -Path ./lib/ant-salesforce.jar -Destination ./lib/ -Force
 
       - name: Set environment variables for Dev1
         if: github.ref == 'refs/heads/Dev1'
