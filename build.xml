@@ -1,20 +1,14 @@
-<project name="SalesforceDeployment" default="deploy" basedir=".">
+<project name="SalesforceDeploy" default="deploy" basedir=".">
   <property file="build.properties" />
 
-  <!-- Define the directories and files -->
-  <property name="deployRoot" value="src" />
-  <!-- Uncomment and set if using a zip file -->
-  <!-- <property name="zipFile" value="path/to/your/deploy.zip" /> -->
-
   <target name="deploy">
-      <echo message="Deploying to Salesforce..."/>
-      <sf:deploy 
-          username="${sf.username}" 
-          password="${sf.password}" 
-          serverurl="${sf.serverurl}" 
-          deployRoot="${deployRoot}"
-          <!-- Uncomment if using zipFile -->
-          <!-- zipFile="${zipFile}" -->
+      <echo message="Deploying to Salesforce..." />
+      <sf:deploy
+          username="${sf.username}"
+          password="${sf.password}"
+          serverurl="${sf.serverurl}"
+          deployRoot="src" <!-- or your deployment root directory -->
+          testLevel="RunLocalTests"
       />
   </target>
 </project>
