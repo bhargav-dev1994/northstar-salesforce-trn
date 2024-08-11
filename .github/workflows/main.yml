@@ -35,6 +35,8 @@ jobs:
         if (!(Test-Path -Path "./lib/ant-salesforce.jar")) {
           Write-Host "ant-salesforce.jar not found in lib directory"
           exit 1
+        } else {
+          Write-Host "ant-salesforce.jar is found in the lib directory"
         }
 
     - name: Set Environment Variables
