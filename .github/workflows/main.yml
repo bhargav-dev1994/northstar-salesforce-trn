@@ -25,11 +25,39 @@ jobs:
       - name: Set up Ant
         run: |
           choco install ant -y
-          New-Item -ItemType Directory -Path ./lib -Force
-          Copy-Item ./lib/ant-salesforce.jar ./lib/ -Force
+          mkdir -p ./lib
+          cp ./lib/ant-salesforce.jar ./lib/ -f
+
+      - name: Set environment variables for Dev1
+        if: github.ref == 'refs/heads/Dev1'
+        run: |
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV1 }}" >> $GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
+
+      - name: Set environment variables for SIT
+        if: github.ref == 'refs/heads/SIT'
+        run: |
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}" >> $GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}" >> $GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
+
+      - name: Set environment variables for UAT
+        if: github.ref == 'refs/heads/UAT'
+        run: |
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}" >> $GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}" >> $GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
+
+      - name: Set environment variables for Master
+        if: github.ref == 'refs/heads/Master'
+        run: |
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $GITHUB_ENV
 
       - name: Deploy to Salesforce
         run: |
-          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets['SF_USERNAME_' + github.ref_name] }} -Dsf.password=${{ secrets['SF_PASSWORD_' + github.ref_name] }} -Dsf.serverurl=${{ secrets['SF_SERVERURL_' + (github.ref_name == 'Master' ? 'PROD' : 'SANDBOX')] }} -Dorg.alias=${{ github.ref_name }}
+          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ github.ref_name }}
         env:
           JAVA_HOME: C:\hostedtoolcache\windows\Java_Adopt_jdk\11.0.24-8\x64
