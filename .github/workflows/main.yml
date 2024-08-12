@@ -31,9 +31,14 @@ jobs:
       run: npm cache clean --force
 
     - name: Remove npm lock files
+      shell: pwsh
       run: |
-        del /q /s %ProgramFiles%\npm\prefix\node_modules\sfdx-cli
-        del /q /s %ProgramFiles%\npm\prefix\node_modules\.sfdx-cli-*
+        if (Test-Path "$env:ProgramFiles\npm\prefix\node_modules\sfdx-cli") {
+          Remove-Item -Recurse -Force "$env:ProgramFiles\npm\prefix\node_modules\sfdx-cli"
+        }
+        if (Test-Path "$env:ProgramFiles\npm\prefix\node_modules\.sfdx-cli-*") {
+          Remove-Item -Recurse -Force "$env:ProgramFiles\npm\prefix\node_modules\.sfdx-cli-*"
+        }
 
     - name: Set Environment Variables
       run: |
