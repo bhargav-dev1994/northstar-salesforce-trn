@@ -78,7 +78,12 @@ jobs:
       run: .\install_sfdx.bat
 
     - name: Verify Salesforce CLI
-      run: sfdx --version
+      run: |
+        if (!(Get-Command sfdx -ErrorAction SilentlyContinue)) {
+          Write-Error "sfdx is not installed or not in PATH"
+          exit 1
+        }
+        sfdx --version
 
     - name: Run Ant Deployment
       run: |
