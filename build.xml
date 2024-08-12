@@ -1,13 +1,28 @@
-<project name="SalesforceDeployment" default="deploy" basedir=".">
-  
-  <property name="deployRoot" value="./src" />
-  <property name="sf.username" value="${sf.username}" />
-  <property name="sf.password" value="${sf.password}" />
-  <property name="sf.serverurl" value="${sf.serverurl}" />
+<project name="Salesforce Deployment" default="deploy" basedir=".">
+  <!-- Define properties for Salesforce CLI -->
+  <property name="sfdx.install.script" value="install_sfdx.bat"/>
+  <property name="deploy.source" value="force-app/main/default"/>
+  <property name="org.alias" value="target-org-alias"/>
 
-  <target name="deploy">
-    <echo message="Deploying to Salesforce..." />
-    <sf:deploy username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" deployRoot="${deployRoot}" />
+  <!-- Target to install Salesforce CLI -->
+  <target name="install-sfdx">
+      <echo message="Checking and installing Salesforce CLI if necessary..."/>
+      <exec executable="${sfdx.install.script}" failonerror="true" osfamily="windows"/>
   </target>
 
+  <!-- Target to deploy to Salesforce using sfdx -->
+  <target name="deploy" depends="install-sfdx">
+      <echo message="Deploying to Salesforce..."/>
+      <exec executable="sfdx" failonerror="true" osfamily="windows">
+          <arg line="force:source:deploy -p ${deploy.source} -u ${org.alias}"/>
+      </exec>
+  </target>
+
+  <!-- Target to retrieve from Salesforce using sfdx -->
+  <target name="retrieve" depends="install-sfdx">
+      <echo message="Retrieving from Salesforce..."/>
+      <exec executable="sfdx" failonerror="true" osfamily="windows">
+          <arg line="force:source:retrieve -p ${deploy.source} -u ${org.alias}"/>
+      </exec>
+  </target>
 </project>
