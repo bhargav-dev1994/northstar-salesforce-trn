@@ -9,7 +9,7 @@
           username="${sf.username}"
           password="${sf.password}"
           serverurl="${sf.serverurl}"
-          deployRoot="deployRootPath"
+          deployRoot="src/deploy"
           wait="true"
           pollWait="1000"
           testLevel="RunAllTestsInOrg"
