@@ -1,4 +1,4 @@
-name: Salesforce CI/CD
+name: Salesforce Deployment
 
 on:
   push:
@@ -6,61 +6,65 @@ on:
       - Dev1
       - SIT
       - UAT
-      - Master
+      - master  # Ensure this matches your main branch name
 
 jobs:
-  build:
+  deploy:
     runs-on: windows-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Java
-      uses: actions/setup-java@v3
+    - name: Setup Java
+      uses: actions/setup-java@v2
       with:
-        distribution: 'adopt'
         java-version: '11'
+        distribution: 'adopt'
 
-    - name: Download Salesforce Ant Migration Tool
+    - name: Verify ant-salesforce.jar
       run: |
-        $url = "https://resources.docs.salesforce.com/rel1/doc/en-us/static/pdf/salesforce_ant_52.0.zip"
-        $output = "ant-salesforce.zip"
-        Invoke-WebRequest -Uri $url -OutFile $output
-        Expand-Archive -Path $output -DestinationPath "ant-salesforce"
-        Copy-Item -Path "ant-salesforce/ant-salesforce.jar" -Destination "./lib/" -Force
-
-    - name: Verify JAR file and Classes
-      run: |
-        jar tf ./lib/ant-salesforce.jar | Select-String "com/salesforce/ant/"
-
-    - name: Set Salesforce Credentials
-      run: |
-        if ($env:GITHUB_REF -eq 'refs/heads/Dev1') {
-          echo "Setting Dev1 credentials"
-          $env:SF_USERNAME = ${{ secrets.SF_USERNAME_DEV1 }}
-          $env:SF_PASSWORD = ${{ secrets.SF_PASSWORD_DEV1 }}
-          $env:SF_SERVERURL = ${{ secrets.SF_SERVERURL_SANDBOX }}
-        } elseif ($env:GITHUB_REF -eq 'refs/heads/SIT') {
-          echo "Setting SIT credentials"
-          $env:SF_USERNAME = ${{ secrets.SF_USERNAME_SIT }}
-          $env:SF_PASSWORD = ${{ secrets.SF_PASSWORD_SIT }}
-          $env:SF_SERVERURL = ${{ secrets.SF_SERVERURL_SANDBOX }}
-        } elseif ($env:GITHUB_REF -eq 'refs/heads/UAT') {
-          echo "Setting UAT credentials"
-          $env:SF_USERNAME = ${{ secrets.SF_USERNAME_UAT }}
-          $env:SF_PASSWORD = ${{ secrets.SF_PASSWORD_UAT }}
-          $env:SF_SERVERURL = ${{ secrets.SF_SERVERURL_SANDBOX }}
-        } elseif ($env:GITHUB_REF -eq 'refs/heads/Master') {
-          echo "Setting Production credentials"
-          $env:SF_USERNAME = ${{ secrets.SF_USERNAME_PROD }}
-          $env:SF_PASSWORD = ${{ secrets.SF_PASSWORD_PROD }}
-          $env:SF_SERVERURL = ${{ secrets.SF_SERVERURL_PROD }}
-        } else {
-          echo "Unknown branch!"
+        if [ ! -f ./lib/ant-salesforce.jar ]; then
+          echo "ant-salesforce.jar not found in lib directory"
           exit 1
-        }
+        fi
+
+    - name: Set Environment Variables
+      run: |
+        echo "Setting environment variables..."
+        case ${{ github.ref_name }} in
+          Dev1|SIT|UAT)
+            echo "SF_USERNAME_SANDBOX=${{ secrets.SF_USERNAME_SANDBOX }}" >> $GITHUB_ENV
+            echo "SF_PASSWORD_SANDBOX=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $GITHUB_ENV
+            echo "SF_SERVERURL_SANDBOX=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
+            ;;
+          master)
+            echo "SF_USERNAME_PROD=${{ secrets.SF_USERNAME_PROD }}" >> $GITHUB_ENV
+            echo "SF_PASSWORD_PROD=${{ secrets.SF_PASSWORD_PROD }}" >> $GITHUB_ENV
+            echo "SF_SERVERURL_PROD=${{ secrets.SF_SERVERURL_PROD }}" >> $GITHUB_ENV
+            ;;
+        esac
+
+    - name: Set Org Alias
+      run: |
+        case ${{ github.ref_name }} in
+          Dev1)
+            echo "ORG_ALIAS=Dev1" >> $GITHUB_ENV
+            ;;
+          SIT)
+            echo "ORG_ALIAS=SIT" >> $GITHUB_ENV
+            ;;
+          UAT)
+            echo "ORG_ALIAS=UAT" >> $GITHUB_ENV
+            ;;
+          master)
+            echo "ORG_ALIAS=prod" >> $GITHUB_ENV
+            ;;
+        esac
+
+    - name: Run Salesforce CLI Installation
+      run: install_sfdx.bat
 
     - name: Run Ant Deployment
       run: |
-        ant -lib ./lib -f build.xml deploy -Dsf.username=$env:SF_USERNAME -Dsf.password=$env:SF_PASSWORD -Dsf.serverurl=$env:SF_SERVERURL -verbose
+        ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
