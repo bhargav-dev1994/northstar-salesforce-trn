@@ -31,7 +31,6 @@ jobs:
 
     - name: Set Environment Variables
       run: |
-        echo "Setting environment variables..."
         switch ($env:GITHUB_REF_NAME) {
           'Dev1' {
             echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $env:GITHUB_ENV
@@ -76,7 +75,7 @@ jobs:
       run: dir
 
     - name: Run Salesforce CLI Installation
-      run: .\install_sfdx.bat  # Adjust path as needed
+      run: .\install_sfdx.bat  # Ensure this path is correct
 
     - name: Run Ant Deployment
       run: |

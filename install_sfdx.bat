@@ -1,21 +1,27 @@
 @echo off
 setlocal
 
-REM Check if sfdx is installed
-where sfdx >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Salesforce CLI is not installed. Installing...
+:: Define the URL for the latest Salesforce CLI
+set "SFDX_URL=https://developer.salesforce.com/media/salesforce-cli/sfdx-cli-7.206.1-windows-x64.zip"
+set "SFDX_ZIP=sfdx-cli.zip"
+set "SFDX_DIR=sfdx"
 
-    REM Download and install Salesforce CLI
-    powershell -Command "Invoke-WebRequest -Uri 'https://developer.salesforce.com/media/salesforce-cli/sfdx-cli/channels/stable/sfdx-cli-windows-x64.zip' -OutFile 'sfdx-cli.zip'"
-    powershell -Command "Expand-Archive -Path 'sfdx-cli.zip' -DestinationPath 'sfdx'"
-    setx PATH "%CD%\sfdx\bin;%PATH%"
-    set "PATH=%CD%\sfdx\bin;%PATH%"
+:: Download Salesforce CLI
+echo Downloading Salesforce CLI...
+powershell -Command "Invoke-WebRequest -Uri %SFDX_URL% -OutFile %SFDX_ZIP%"
 
-    REM Verify installation
-    sfdx --version
-) else (
-    echo Salesforce CLI is already installed.
-)
+:: Unzip Salesforce CLI
+echo Extracting Salesforce CLI...
+powershell -Command "Expand-Archive -Path %SFDX_ZIP% -DestinationPath %SFDX_DIR%"
+
+:: Add Salesforce CLI to PATH
+set "PATH=%CD%\%SFDX_DIR%\bin;%PATH%"
+
+:: Clean up
+del %SFDX_ZIP%
+
+:: Verify installation
+echo Verifying Salesforce CLI installation...
+sfdx --version
 
 endlocal
