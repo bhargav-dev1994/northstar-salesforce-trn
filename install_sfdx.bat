@@ -6,6 +6,17 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
+REM Clean npm cache
+npm cache clean --force
+
+REM Remove any existing sfdx-cli installations
+if exist "%ProgramFiles%\npm\prefix\node_modules\sfdx-cli" (
+    rmdir /s /q "%ProgramFiles%\npm\prefix\node_modules\sfdx-cli"
+)
+if exist "%ProgramFiles%\npm\prefix\node_modules\.sfdx-cli-*" (
+    rmdir /s /q "%ProgramFiles%\npm\prefix\node_modules\.sfdx-cli-*"
+)
+
 REM Install Salesforce CLI using npm
 npm install --global sfdx-cli
 

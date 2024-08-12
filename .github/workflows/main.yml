@@ -27,6 +27,14 @@ jobs:
       with:
         node-version: '16'  # Choose the version you need
 
+    - name: Clean npm cache
+      run: npm cache clean --force
+
+    - name: Remove npm lock files
+      run: |
+        del /q /s %ProgramFiles%\npm\prefix\node_modules\sfdx-cli
+        del /q /s %ProgramFiles%\npm\prefix\node_modules\.sfdx-cli-*
+
     - name: Set Environment Variables
       run: |
         switch ($env:GITHUB_REF_NAME) {
