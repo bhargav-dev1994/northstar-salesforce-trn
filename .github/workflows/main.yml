@@ -24,43 +24,53 @@ jobs:
 
     - name: Verify ant-salesforce.jar
       run: |
-        if [ ! -f ./lib/ant-salesforce.jar ]; then
-          echo "ant-salesforce.jar not found in lib directory"
+        if (!(Test-Path ./lib/ant-salesforce.jar)) {
+          Write-Error "ant-salesforce.jar not found in lib directory"
           exit 1
-        fi
+        }
 
     - name: Set Environment Variables
       run: |
         echo "Setting environment variables..."
-        case ${{ github.ref_name }} in
-          Dev1|SIT|UAT)
-            echo "SF_USERNAME_SANDBOX=${{ secrets.SF_USERNAME_SANDBOX }}" >> $GITHUB_ENV
-            echo "SF_PASSWORD_SANDBOX=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $GITHUB_ENV
-            echo "SF_SERVERURL_SANDBOX=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
-            ;;
-          master)
-            echo "SF_USERNAME_PROD=${{ secrets.SF_USERNAME_PROD }}" >> $GITHUB_ENV
-            echo "SF_PASSWORD_PROD=${{ secrets.SF_PASSWORD_PROD }}" >> $GITHUB_ENV
-            echo "SF_SERVERURL_PROD=${{ secrets.SF_SERVERURL_PROD }}" >> $GITHUB_ENV
-            ;;
-        esac
+        switch ($env:GITHUB_REF_NAME) {
+          'Dev1' {
+            echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $env:GITHUB_ENV
+            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV1 }}" >> $env:GITHUB_ENV
+            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
+          }
+          'SIT' {
+            echo "SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}" >> $env:GITHUB_ENV
+            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}" >> $env:GITHUB_ENV
+            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
+          }
+          'UAT' {
+            echo "SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}" >> $env:GITHUB_ENV
+            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}" >> $env:GITHUB_ENV
+            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
+          }
+          'master' {
+            echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $env:GITHUB_ENV
+            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $env:GITHUB_ENV
+            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $env:GITHUB_ENV
+          }
+        }
 
     - name: Set Org Alias
       run: |
-        case ${{ github.ref_name }} in
-          Dev1)
-            echo "ORG_ALIAS=Dev1" >> $GITHUB_ENV
-            ;;
-          SIT)
-            echo "ORG_ALIAS=SIT" >> $GITHUB_ENV
-            ;;
-          UAT)
-            echo "ORG_ALIAS=UAT" >> $GITHUB_ENV
-            ;;
-          master)
-            echo "ORG_ALIAS=prod" >> $GITHUB_ENV
-            ;;
-        esac
+        switch ($env:GITHUB_REF_NAME) {
+          'Dev1' {
+            echo "ORG_ALIAS=Dev1" >> $env:GITHUB_ENV
+          }
+          'SIT' {
+            echo "ORG_ALIAS=SIT" >> $env:GITHUB_ENV
+          }
+          'UAT' {
+            echo "ORG_ALIAS=UAT" >> $env:GITHUB_ENV
+          }
+          'master' {
+            echo "ORG_ALIAS=prod" >> $env:GITHUB_ENV
+          }
+        }
 
     - name: Run Salesforce CLI Installation
       run: install_sfdx.bat
