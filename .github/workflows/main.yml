@@ -25,9 +25,14 @@ jobs:
         run: |
           echo "Installing Salesforce CLI..."
           npm install -g @salesforce/cli
+          echo "Salesforce CLI installed."
+          echo "sfdx command location:"
+          where sfdx
 
       - name: Verify Salesforce CLI Installation
-        run: sfdx --version
+        run: |
+          sfdx --version
+          sfdx plugins --core
 
       - name: Deploy to Salesforce
         run: |
@@ -37,4 +42,3 @@ jobs:
           SF_USERNAME: ${{ secrets.SF_USERNAME_DEV1 }}
           SF_PASSWORD: ${{ secrets.SF_PASSWORD_DEV1 }}
           SF_SERVERURL: ${{ secrets.SF_SERVERURL_SANDBOX }}
-
