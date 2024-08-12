@@ -6,23 +6,23 @@
 
   <!-- Target to install Salesforce CLI -->
   <target name="install-sfdx">
-      <echo message="Checking and installing Salesforce CLI if necessary..."/>
-      <exec executable="${sfdx.install.script}" failonerror="true" osfamily="windows"/>
+    <echo message="Checking and installing Salesforce CLI if necessary..."/>
+    <exec executable="${sfdx.install.script}" failonerror="true" osfamily="windows"/>
   </target>
 
   <!-- Target to deploy to Salesforce using sfdx -->
   <target name="deploy" depends="install-sfdx">
-      <echo message="Deploying to Salesforce..."/>
-      <exec executable="sfdx" failonerror="true" osfamily="windows">
-          <arg line="force:source:deploy -p ${deploy.source} -u ${org.alias}"/>
-      </exec>
+    <echo message="Deploying to Salesforce..."/>
+    <exec executable="sfdx" failonerror="true" osfamily="windows">
+      <arg line="force:source:deploy -p ${deploy.source} -u ${org.alias}"/>
+    </exec>
   </target>
 
   <!-- Target to retrieve from Salesforce using sfdx -->
   <target name="retrieve" depends="install-sfdx">
-      <echo message="Retrieving from Salesforce..."/>
-      <exec executable="sfdx" failonerror="true" osfamily="windows">
-          <arg line="force:source:retrieve -p ${deploy.source} -u ${org.alias}"/>
-      </exec>
+    <echo message="Retrieving from Salesforce..."/>
+    <exec executable="sfdx" failonerror="true" osfamily="windows">
+      <arg line="force:source:retrieve -p ${deploy.source} -u ${org.alias}"/>
+    </exec>
   </target>
 </project>
