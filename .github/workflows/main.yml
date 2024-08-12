@@ -23,15 +23,17 @@ jobs:
       - name: Install Salesforce CLI
         run: |
           echo "Installing Salesforce CLI..."
-          npm install -g @salesforce/cli || echo "Failed to install Salesforce CLI"
+          npm install -g @salesforce/cli
+
+      - name: Add npm bin to PATH
+        run: |
+          echo "Adding npm global binaries to PATH..."
+          echo "C:\\Users\\runneradmin\\AppData\\Roaming\\npm" >> $GITHUB_PATH
+          echo "PATH=$PATH:C:\\Users\\runneradmin\\AppData\\Roaming\\npm" >> $GITHUB_ENV
 
       - name: Verify Salesforce CLI Installation
         run: |
-          sfdx --version || echo "Salesforce CLI not installed or not in PATH"
-
-      - name: Setup Path for Salesforce CLI
-        run: |
-          echo "##vso[task.prependpath]C:\\Users\\runneradmin\\AppData\\Roaming\\npm" >> $GITHUB_ENV
+          sfdx --version
 
   deploy-dev1:
     runs-on: windows-latest
@@ -51,10 +53,6 @@ jobs:
         run: |
           echo "Deploying to Dev1..."
           ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets.SF_USERNAME_DEV1 }} -Dsf.password=${{ secrets.SF_PASSWORD_DEV1 }} -Dsf.serverurl=${{ secrets.SF_SERVERURL_SANDBOX }} -Dorg.alias=Dev1
-        env:
-          SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
-          SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
-          SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
 
   deploy-sit:
     runs-on: windows-latest
