@@ -1,4 +1,4 @@
-name: Salesforce Deployment
+name: Salesforce CI/CD
 
 on:
   push:
@@ -6,39 +6,22 @@ on:
       - Dev1
       - SIT
       - UAT
-      - Master
 
 jobs:
   deploy:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
+    - name: Install Salesforce CLI
+      run: |
+        npm install --global sfdx-cli
+        sfdx --version
 
-      - name: Install Salesforce CLI
-        run: |
-          echo "Installing Salesforce CLI..."
-          npm install -g @salesforce/cli
-          echo "Salesforce CLI installed."
-          echo "sfdx command location:"
-          where sfdx
-
-      - name: Verify Salesforce CLI Installation
-        run: |
-          sfdx --version
-          sfdx plugins --core
-
-      - name: Deploy to Salesforce
-        run: |
-          echo "Deploying to Salesforce..."
-          ant -lib ./lib -f build.xml deploy
-        env:
-          SF_USERNAME: ${{ secrets.SF_USERNAME_DEV1 }}
-          SF_PASSWORD: ${{ secrets.SF_PASSWORD_DEV1 }}
-          SF_SERVERURL: ${{ secrets.SF_SERVERURL_SANDBOX }}
+    - name: Deploy to Salesforce
+      run: |
+        ant -f build.xml deploy
+      env:
+        SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL_DEV1 }}  # Replace this with your SFDX authentication method
