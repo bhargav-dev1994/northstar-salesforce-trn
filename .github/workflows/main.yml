@@ -6,7 +6,7 @@ on:
       - Dev1
       - SIT
       - UAT
-      - master  # Ensure this matches your main branch name
+      - master
 
 jobs:
   deploy:
@@ -22,76 +22,32 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
-    - name: Install Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'  # Choose the version you need
-
-    - name: Clean npm cache
-      run: npm cache clean --force
-
-    - name: Remove npm lock files
-      shell: pwsh
+    - name: Install Salesforce CLI
       run: |
-        if (Test-Path "$env:ProgramFiles\npm\prefix\node_modules\sfdx-cli") {
-          Remove-Item -Recurse -Force "$env:ProgramFiles\npm\prefix\node_modules\sfdx-cli"
-        }
-        if (Test-Path "$env:ProgramFiles\npm\prefix\node_modules\.sfdx-cli-*") {
-          Remove-Item -Recurse -Force "$env:ProgramFiles\npm\prefix\node_modules\.sfdx-cli-*"
+        echo "Installing Salesforce CLI..."
+        npm install --global sfdx-cli
+        sfdx --version
+
+    - name: Verify ant-salesforce.jar
+      run: |
+        if (-Not (Test-Path ./lib/ant-salesforce.jar)) {
+          echo "ant-salesforce.jar not found in lib directory"
+          exit 1
         }
 
     - name: Set Environment Variables
       run: |
-        switch ($env:GITHUB_REF_NAME) {
-          'Dev1' {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV1 }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          }
-          'SIT' {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          }
-          'UAT' {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          }
-          'master' {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $env:GITHUB_ENV
-          }
+        echo "Setting environment variables..."
+        if (${{ github.ref_name }} -eq 'master') {
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $env:GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $env:GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $env:GITHUB_ENV
+        } else {
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SANDBOX }}" >> $env:GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $env:GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
         }
-
-    - name: Set Org Alias
-      run: |
-        switch ($env:GITHUB_REF_NAME) {
-          'Dev1' {
-            echo "ORG_ALIAS=Dev1" >> $env:GITHUB_ENV
-          }
-          'SIT' {
-            echo "ORG_ALIAS=SIT" >> $env:GITHUB_ENV
-          }
-          'UAT' {
-            echo "ORG_ALIAS=UAT" >> $env:GITHUB_ENV
-          }
-          'master' {
-            echo "ORG_ALIAS=prod" >> $env:GITHUB_ENV
-          }
-        }
-
-    - name: Run Salesforce CLI Installation
-      run: .\install_sfdx.bat
-
-    - name: Verify Salesforce CLI
-      run: |
-        if (!(Get-Command sfdx -ErrorAction SilentlyContinue)) {
-          Write-Error "sfdx is not installed or not in PATH"
-          exit 1
-        }
-        sfdx --version
+        echo "ORG_ALIAS=${{ github.ref_name }}" >> $env:GITHUB_ENV
 
     - name: Run Ant Deployment
       run: |
