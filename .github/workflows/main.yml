@@ -9,8 +9,9 @@ on:
       - Master
 
 jobs:
-  install-deps:
+  deploy:
     runs-on: windows-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,92 +22,19 @@ jobs:
           node-version: '18.x'
 
       - name: Install Salesforce CLI
-        run: |
-          echo "Installing Salesforce CLI..."
-          npm install -g @salesforce/cli
-
-      - name: Add npm bin to PATH
-        run: |
-          echo "Adding npm global binaries to PATH..."
-          echo "C:\\Users\\runneradmin\\AppData\\Roaming\\npm" >> $GITHUB_PATH
-          echo "PATH=$PATH:C:\\Users\\runneradmin\\AppData\\Roaming\\npm" >> $GITHUB_ENV
+        uses: forcedotcom/cli-action@v2
+        with:
+          version: 'latest'
 
       - name: Verify Salesforce CLI Installation
+        run: sfdx --version
+
+      - name: Deploy to Salesforce
         run: |
-          sfdx --version
+          echo "Deploying to Salesforce..."
+          ant -lib ./lib -f build.xml deploy
+        env:
+          SF_USERNAME: ${{ secrets.SF_USERNAME_DEV1 }}
+          SF_PASSWORD: ${{ secrets.SF_PASSWORD_DEV1 }}
+          SF_SERVERURL: ${{ secrets.SF_SERVERURL_SANDBOX }}
 
-  deploy-dev1:
-    runs-on: windows-latest
-    needs: install-deps
-    if: github.ref == 'refs/heads/Dev1'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set Environment Variables for Dev1
-        run: |
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV1 }}" >> $GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
-
-      - name: Deploy to Dev1
-        run: |
-          echo "Deploying to Dev1..."
-          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets.SF_USERNAME_DEV1 }} -Dsf.password=${{ secrets.SF_PASSWORD_DEV1 }} -Dsf.serverurl=${{ secrets.SF_SERVERURL_SANDBOX }} -Dorg.alias=Dev1
-
-  deploy-sit:
-    runs-on: windows-latest
-    needs: install-deps
-    if: github.ref == 'refs/heads/SIT'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set Environment Variables for SIT
-        run: |
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}" >> $GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}" >> $GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
-
-      - name: Deploy to SIT
-        run: |
-          echo "Deploying to SIT..."
-          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets.SF_USERNAME_SIT }} -Dsf.password=${{ secrets.SF_PASSWORD_SIT }} -Dsf.serverurl=${{ secrets.SF_SERVERURL_SANDBOX }} -Dorg.alias=SIT
-
-  deploy-uat:
-    runs-on: windows-latest
-    needs: install-deps
-    if: github.ref == 'refs/heads/UAT'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set Environment Variables for UAT
-        run: |
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}" >> $GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}" >> $GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
-
-      - name: Deploy to UAT
-        run: |
-          echo "Deploying to UAT..."
-          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets.SF_USERNAME_UAT }} -Dsf.password=${{ secrets.SF_PASSWORD_UAT }} -Dsf.serverurl=${{ secrets.SF_SERVERURL_SANDBOX }} -Dorg.alias=UAT
-
-  deploy-prod:
-    runs-on: windows-latest
-    needs: install-deps
-    if: github.ref == 'refs/heads/Master'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set Environment Variables for Prod
-        run: |
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $GITHUB_ENV
-
-      - name: Deploy to Prod
-        run: |
-          echo "Deploying to Prod..."
-          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets.SF_USERNAME_PROD }} -Dsf.password=${{ secrets.SF_PASSWORD_PROD }} -Dsf.serverurl=${{ secrets.SF_SERVERURL_PROD }} -Dorg.alias=Prod
