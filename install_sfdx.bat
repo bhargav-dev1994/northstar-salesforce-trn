@@ -1,12 +1,13 @@
 @echo off
-REM Download Salesforce CLI
-powershell -Command "Invoke-WebRequest -Uri https://developer.salesforce.com/media/salesforce-cli/sfdx-cli.zip -OutFile sfdx-cli.zip"
+REM Check if Node.js is installed
+where node >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    echo Node.js is not installed. Please install Node.js to proceed.
+    exit /b 1
+)
 
-REM Extract Salesforce CLI
-powershell -Command "Expand-Archive -Path sfdx-cli.zip -DestinationPath sfdx"
+REM Install Salesforce CLI using npm
+npm install --global sfdx-cli
 
-REM Add Salesforce CLI to PATH
-setx PATH "%PATH%;%CD%\sfdx\bin"
-
-REM Verify installation
+REM Verify Salesforce CLI installation
 sfdx --version

@@ -22,12 +22,10 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
 
-    - name: Verify ant-salesforce.jar
-      run: |
-        if (!(Test-Path ./lib/ant-salesforce.jar)) {
-          Write-Error "ant-salesforce.jar not found in lib directory"
-          exit 1
-        }
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # Choose the version you need
 
     - name: Set Environment Variables
       run: |
@@ -70,9 +68,6 @@ jobs:
             echo "ORG_ALIAS=prod" >> $env:GITHUB_ENV
           }
         }
-
-    - name: List Files
-      run: dir
 
     - name: Run Salesforce CLI Installation
       run: .\install_sfdx.bat
