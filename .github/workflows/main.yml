@@ -25,6 +25,10 @@ jobs:
         npm install --global @salesforce/cli
         sf version
 
+    - name: Add Salesforce CLI to PATH
+      run: |
+        echo "##[add-path]C:\\Users\\runneradmin\\AppData\\Roaming\\npm" >> $GITHUB_ENV
+
     - name: Deploy to Salesforce
       run: |
         echo "Deploying to Salesforce..."
