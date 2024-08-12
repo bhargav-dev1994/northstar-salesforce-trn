@@ -72,8 +72,11 @@ jobs:
           }
         }
 
+    - name: List Files
+      run: dir
+
     - name: Run Salesforce CLI Installation
-      run: install_sfdx.bat
+      run: .\install_sfdx.bat  # Adjust path as needed
 
     - name: Run Ant Deployment
       run: |
