@@ -1,18 +1,13 @@
-<project name="Salesforce Deployment" basedir="." default="deploy">
-  <!-- Define the Salesforce Ant tasks -->
-  <taskdef name="sf:deploy"
-           classname="com.salesforce.ant.SfdcAntTask"
-           classpath="lib/ant-salesforce.jar"/>
+<project name="SalesforceDeployment" default="deploy" basedir=".">
   
+  <property name="deployRoot" value="./src" />
+  <property name="sf.username" value="${sf.username}" />
+  <property name="sf.password" value="${sf.password}" />
+  <property name="sf.serverurl" value="${sf.serverurl}" />
+
   <target name="deploy">
-      <sf:deploy
-          username="${sf.username}"
-          password="${sf.password}"
-          serverurl="${sf.serverurl}"
-          deployRoot="src/deploy"
-          wait="true"
-          pollWait="1000"
-          testLevel="RunAllTestsInOrg"
-          rollbackOnError="true"/>
+    <echo message="Deploying to Salesforce..." />
+    <sf:deploy username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" deployRoot="${deployRoot}" />
   </target>
+
 </project>

@@ -1,4 +1,4 @@
-name: Salesforce Deployment
+name: Salesforce CI/CD
 
 on:
   push:
@@ -9,46 +9,58 @@ on:
       - Master
 
 jobs:
-  deploy:
+  build:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: '11'
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'adopt'
+        java-version: '11'
 
-      - name: Ensure lib directory exists
-        run: |
-          if (-Not (Test-Path -Path ./lib)) { New-Item -ItemType Directory -Path ./lib }
+    - name: Download Salesforce Ant Migration Tool
+      run: |
+        $url = "https://resources.docs.salesforce.com/rel1/doc/en-us/static/pdf/salesforce_ant_52.0.zip"
+        $output = "ant-salesforce.zip"
+        Invoke-WebRequest -Uri $url -OutFile $output
+        Expand-Archive -Path $output -DestinationPath "ant-salesforce"
+        Copy-Item -Path "ant-salesforce/ant-salesforce.jar" -Destination "./lib/" -Force
 
-      - name: Set environment variables
-        run: |
-          if ($env:GITHUB_REF -eq 'refs/heads/Dev1') {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV1 }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          } elseif ($env:GITHUB_REF -eq 'refs/heads/SIT') {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          } elseif ($env:GITHUB_REF -eq 'refs/heads/UAT') {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-          } elseif ($env:GITHUB_REF -eq 'refs/heads/Master') {
-            echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $env:GITHUB_ENV
-            echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $env:GITHUB_ENV
-            echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $env:GITHUB_ENV
-          }
-        shell: pwsh
+    - name: Verify JAR file and Classes
+      run: |
+        jar tf ./lib/ant-salesforce.jar | Select-String "com/salesforce/ant/"
 
-      - name: Deploy to Salesforce
-        run: |
-          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ github.ref_name }} -verbose
-        env:
-          JAVA_HOME: C:\hostedtoolcache\windows\Java_Adopt_jdk\11.0.24-8\x64
+    - name: Set Salesforce Credentials
+      run: |
+        if ($env:GITHUB_REF -eq 'refs/heads/Dev1') {
+          echo "Setting Dev1 credentials"
+          $env:SF_USERNAME = ${{ secrets.SF_USERNAME_DEV1 }}
+          $env:SF_PASSWORD = ${{ secrets.SF_PASSWORD_DEV1 }}
+          $env:SF_SERVERURL = ${{ secrets.SF_SERVERURL_SANDBOX }}
+        } elseif ($env:GITHUB_REF -eq 'refs/heads/SIT') {
+          echo "Setting SIT credentials"
+          $env:SF_USERNAME = ${{ secrets.SF_USERNAME_SIT }}
+          $env:SF_PASSWORD = ${{ secrets.SF_PASSWORD_SIT }}
+          $env:SF_SERVERURL = ${{ secrets.SF_SERVERURL_SANDBOX }}
+        } elseif ($env:GITHUB_REF -eq 'refs/heads/UAT') {
+          echo "Setting UAT credentials"
+          $env:SF_USERNAME = ${{ secrets.SF_USERNAME_UAT }}
+          $env:SF_PASSWORD = ${{ secrets.SF_PASSWORD_UAT }}
+          $env:SF_SERVERURL = ${{ secrets.SF_SERVERURL_SANDBOX }}
+        } elseif ($env:GITHUB_REF -eq 'refs/heads/Master') {
+          echo "Setting Production credentials"
+          $env:SF_USERNAME = ${{ secrets.SF_USERNAME_PROD }}
+          $env:SF_PASSWORD = ${{ secrets.SF_PASSWORD_PROD }}
+          $env:SF_SERVERURL = ${{ secrets.SF_SERVERURL_PROD }}
+        } else {
+          echo "Unknown branch!"
+          exit 1
+        }
+
+    - name: Run Ant Deployment
+      run: |
+        ant -lib ./lib -f build.xml deploy -Dsf.username=$env:SF_USERNAME -Dsf.password=$env:SF_PASSWORD -Dsf.serverurl=$env:SF_SERVERURL -verbose
