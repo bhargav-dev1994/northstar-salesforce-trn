@@ -6,49 +6,115 @@ on:
       - Dev1
       - SIT
       - UAT
-      - master
 
 jobs:
-  deploy:
+  build:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup Java
-      uses: actions/setup-java@v2
-      with:
-        java-version: '11'
-        distribution: 'adopt'
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
 
-    - name: Install Salesforce CLI
-      run: |
-        echo "Installing Salesforce CLI..."
-        npm install --global sfdx-cli
-        sfdx --version
+      - name: Install Salesforce CLI
+        run: |
+          echo "Installing Salesforce CLI..."
+          npm install -g @salesforce/cli
+        env:
+          SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
+          SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
+          SF_USERNAME_SIT: ${{ secrets.SF_USERNAME_SIT }}
+          SF_PASSWORD_SIT: ${{ secrets.SF_PASSWORD_SIT }}
+          SF_USERNAME_UAT: ${{ secrets.SF_USERNAME_UAT }}
+          SF_PASSWORD_UAT: ${{ secrets.SF_PASSWORD_UAT }}
+          SF_USERNAME_PROD: ${{ secrets.SF_USERNAME_PROD }}
+          SF_PASSWORD_PROD: ${{ secrets.SF_PASSWORD_PROD }}
+          SF_SERVERURL_PROD: ${{ secrets.SF_SERVERURL_PROD }}
+          SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
 
-    - name: Verify ant-salesforce.jar
-      run: |
-        if (-Not (Test-Path ./lib/ant-salesforce.jar)) {
-          echo "ant-salesforce.jar not found in lib directory"
-          exit 1
-        }
+      - name: Verify Salesforce CLI Installation
+        run: |
+          sfdx --version
 
-    - name: Set Environment Variables
-      run: |
-        echo "Setting environment variables..."
-        if (${{ github.ref_name }} -eq 'master') {
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $env:GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $env:GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $env:GITHUB_ENV
-        } else {
-          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SANDBOX }}" >> $env:GITHUB_ENV
-          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SANDBOX }}" >> $env:GITHUB_ENV
-          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $env:GITHUB_ENV
-        }
-        echo "ORG_ALIAS=${{ github.ref_name }}" >> $env:GITHUB_ENV
+      - name: Set Environment Variables
+        run: |
+          echo "Setting environment variables..."
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_DEV1 }}" >> $GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_DEV1 }}" >> $GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
 
-    - name: Run Ant Deployment
-      run: |
-        ant -lib ./lib -f build.xml deploy -Dsf.username=${{ env.SF_USERNAME }} -Dsf.password=${{ env.SF_PASSWORD }} -Dsf.serverurl=${{ env.SF_SERVERURL }} -Dorg.alias=${{ env.ORG_ALIAS }}
+      - name: Build and Deploy to Salesforce
+        run: |
+          echo "Running Ant build..."
+          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets.SF_USERNAME_DEV1 }} -Dsf.password=${{ secrets.SF_PASSWORD_DEV1 }} -Dsf.serverurl=${{ secrets.SF_SERVERURL_SANDBOX }} -Dorg.alias=Dev1
+        env:
+          SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
+          SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
+          SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
+
+  deploy-to-sit:
+    runs-on: windows-latest
+    needs: build
+    if: github.ref == 'refs/heads/SIT'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set Environment Variables for SIT
+        run: |
+          echo "Setting environment variables for SIT..."
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_SIT }}" >> $GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_SIT }}" >> $GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
+
+      - name: Deploy to SIT
+        run: |
+          echo "Deploying to SIT..."
+          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets.SF_USERNAME_SIT }} -Dsf.password=${{ secrets.SF_PASSWORD_SIT }} -Dsf.serverurl=${{ secrets.SF_SERVERURL_SANDBOX }} -Dorg.alias=SIT
+
+  deploy-to-uat:
+    runs-on: windows-latest
+    needs: build
+    if: github.ref == 'refs/heads/UAT'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set Environment Variables for UAT
+        run: |
+          echo "Setting environment variables for UAT..."
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_UAT }}" >> $GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_UAT }}" >> $GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_SANDBOX }}" >> $GITHUB_ENV
+
+      - name: Deploy to UAT
+        run: |
+          echo "Deploying to UAT..."
+          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets.SF_USERNAME_UAT }} -Dsf.password=${{ secrets.SF_PASSWORD_UAT }} -Dsf.serverurl=${{ secrets.SF_SERVERURL_SANDBOX }} -Dorg.alias=UAT
+
+  deploy-to-prod:
+    runs-on: windows-latest
+    needs: build
+    if: github.ref == 'refs/heads/Master'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set Environment Variables for Prod
+        run: |
+          echo "Setting environment variables for Prod..."
+          echo "SF_USERNAME=${{ secrets.SF_USERNAME_PROD }}" >> $GITHUB_ENV
+          echo "SF_PASSWORD=${{ secrets.SF_PASSWORD_PROD }}" >> $GITHUB_ENV
+          echo "SF_SERVERURL=${{ secrets.SF_SERVERURL_PROD }}" >> $GITHUB_ENV
+
+      - name: Deploy to Prod
+        run: |
+          echo "Deploying to Prod..."
+          ant -lib ./lib -f build.xml deploy -Dsf.username=${{ secrets.SF_USERNAME_PROD }} -Dsf.password=${{ secrets.SF_PASSWORD_PROD }} -Dsf.serverurl=${{ secrets.SF_SERVERURL_PROD }} -Dorg.alias=Prod
