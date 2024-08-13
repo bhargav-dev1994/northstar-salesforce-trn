@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: windows-latest  # Ensuring you're using a Windows environment
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
@@ -23,7 +23,8 @@ jobs:
     - name: Install Salesforce CLI
       run: |
         npm install --global @salesforce/cli
-        sf version
+        sf --version
+        echo "Salesforce CLI path: $(where sf)"
 
     - name: Add Salesforce CLI to PATH
       run: |
@@ -34,6 +35,6 @@ jobs:
         echo "Deploying to Salesforce..."
         ant -f build.xml deploy
       env:
-        SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL_DEV1 }}  # Ensure you've set this secret
+        SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL_DEV1 }}
         SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
         SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
