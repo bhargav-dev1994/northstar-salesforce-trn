@@ -1,14 +1,15 @@
 <project name="Salesforce Deployment" default="deploy" basedir=".">
-  
-  <!-- Define properties -->
+  <!-- Define properties for Salesforce CLI -->
   <property name="deploy.source" value="force-app/main/default"/>
-  <property name="org.alias" value="${sf.username}"/> <!-- Use the dynamic value passed from the command line -->
+  <property name="org.username" value="${env.SF_USERNAME_DEV1}"/>
+  <property name="org.password" value="${env.SF_PASSWORD_DEV1}"/>
+  <property name="org.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
 
   <!-- Target to deploy to Salesforce using sf -->
   <target name="deploy">
-      <echo message="Deploying to Salesforce org alias: ${org.alias}..."/>
+      <echo message="Deploying to Salesforce..."/>
       <exec executable="sf" failonerror="true" osfamily="windows">
-          <arg line="deploy metadata --source-dir ${deploy.source} --target-org ${org.alias}"/>
+          <arg line="deploy metadata --source-dir ${deploy.source} --target-org ${org.username} --target-org-url ${org.serverurl}"/>
       </exec>
   </target>
 </project>

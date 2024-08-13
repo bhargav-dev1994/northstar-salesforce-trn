@@ -1,49 +1,42 @@
-name: Salesforce Deployment
+name: Salesforce CI/CD
 
 on:
   push:
     branches:
-      - main
-      - master
-  pull_request:
-    branches:
-      - main
-      - master
+      - Dev1
+      - SIT
+      - UAT
 
 jobs:
-  build:
+  deploy:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.20.4'
-          cache: 'npm'
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18.x'
 
-      - name: Install Salesforce CLI
-        run: npm install --global @salesforce/cli
+    - name: Install Salesforce CLI
+      run: |
+        npm install --global @salesforce/cli
+        echo "Salesforce CLI version:"
+        sf --version
+        echo "Salesforce CLI location:"
+        where sf
 
-      - name: Add Salesforce CLI to PATH
-        run: |
-          echo "Adding Salesforce CLI to PATH"
-          echo "::add-path::$(npm prefix -g)/node_modules/@salesforce/cli/bin"
+    - name: Add Salesforce CLI to PATH
+      run: |
+        echo "PATH=C:\\Users\\runneradmin\\AppData\\Roaming\\npm;%PATH%" >> $GITHUB_ENV
 
-      - name: Verify Salesforce CLI installation
-        run: sf --version
-
-      - name: Deploy to Salesforce
-        run: |
-          echo "Deploying to Salesforce..."
-          ant -Dsf.username=${{ secrets.SF_USERNAME_DEV1 }} \
-              -Dsf.password=${{ secrets.SF_PASSWORD_DEV1 }} \
-              -Dsf.serverurl=${{ secrets.SF_SERVERURL_SANDBOX }} \
-              -buildfile build.xml deploy
-
-    env:
-      SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
-      SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
-      SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
+    - name: Deploy to Salesforce
+      run: |
+        echo "Deploying to Salesforce..."
+        ant -f build.xml deploy
+      env:
+        SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
+        SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
+        SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
