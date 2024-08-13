@@ -22,9 +22,11 @@ jobs:
 
     - name: Install Salesforce CLI
       run: |
-        npm install --global @salesforce/cli
-        sf --version
-        echo "Salesforce CLI path: $(where sf)"
+        npm install --global sfdx-cli
+        echo "Salesforce CLI version:"
+        sfdx --version
+        echo "Salesforce CLI location:"
+        where sfdx
 
     - name: Add Salesforce CLI to PATH
       run: |
@@ -35,6 +37,5 @@ jobs:
         echo "Deploying to Salesforce..."
         ant -f build.xml deploy
       env:
-        SFDX_AUTH_URL: ${{ secrets.SFDX_AUTH_URL_DEV1 }}
         SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
         SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}

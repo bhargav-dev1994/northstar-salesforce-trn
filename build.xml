@@ -10,12 +10,4 @@
           <arg line="force:source:deploy -p ${deploy.source} -u ${org.alias}"/>
       </exec>
   </target>
-
-  <!-- Target to retrieve from Salesforce using sfdx -->
-  <target name="retrieve">
-      <echo message="Retrieving from Salesforce..."/>
-      <exec executable="sfdx" failonerror="true" osfamily="windows">
-          <arg line="force:source:retrieve -p ${deploy.source} -u ${org.alias}"/>
-      </exec>
-  </target>
 </project>
