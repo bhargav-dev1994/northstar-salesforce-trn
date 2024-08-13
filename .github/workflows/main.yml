@@ -34,12 +34,12 @@ jobs:
         sf --version
         where sf
 
-    - name: Check Salesforce CLI Directory
+    - name: Check Possible Salesforce CLI Directories
       run: |
-        echo "Checking Salesforce CLI Directory"
-        dir $env:USERPROFILE\AppData\Roaming\npm
-        dir C:\Program Files\nodejs
-        dir C:\Users\runneradmin\AppData\Local\sf
+        echo "Checking Salesforce CLI Directories"
+        if (Test-Path -Path "C:\Program Files\nodejs") { Get-ChildItem "C:\Program Files\nodejs" }
+        if (Test-Path -Path "$env:LOCALAPPDATA\sf") { Get-ChildItem "$env:LOCALAPPDATA\sf" }
+        if (Test-Path -Path "$env:APPDATA\npm") { Get-ChildItem "$env:APPDATA\npm" }
 
     - name: Deploy to Salesforce
       run: |
