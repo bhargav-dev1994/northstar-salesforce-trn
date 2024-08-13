@@ -44,7 +44,7 @@ jobs:
     - name: Deploy to Salesforce
       run: |
         echo "Deploying to Salesforce..."
-        set PATH=$PATH:$env:APPDATA\npm
+        $env:PATH += ";$env:APPDATA\npm"
         ant -f build.xml deploy
       env:
         SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
