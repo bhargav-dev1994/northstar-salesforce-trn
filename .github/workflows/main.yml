@@ -31,7 +31,7 @@ jobs:
     - name: Download Salesforce Ant Migration Tool
       run: |
         echo "Downloading Salesforce Ant Migration Tool..."
-        $url = "https://s3.amazonaws.com/sfdc-static/docs/en-us/ant-salesforce.zip"
+        $url = "https://gs0.salesforce.com/dwnld/SfdcAnt/salesforce_ant_59.0.zip"  # Replace with updated URL
         $output = "salesforce-ant.zip"
         Invoke-WebRequest -Uri $url -OutFile $output
         if (!(Test-Path -Path $output)) {
