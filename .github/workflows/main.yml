@@ -30,8 +30,15 @@ jobs:
 
     - name: Download Salesforce Ant Migration Tool
       run: |
-        curl -o salesforce-ant.zip https://resources.docs.salesforce.com/rel1/doc/en-us/static/pdf/SalesforceAnt.zip
+        echo "Downloading Salesforce Ant Migration Tool..."
+        Invoke-WebRequest -Uri "https://resources.docs.salesforce.com/rel1/doc/en-us/static/pdf/SalesforceAnt.zip" -OutFile "salesforce-ant.zip"
         Expand-Archive -Path salesforce-ant.zip -DestinationPath .
+
+    - name: Verify Download
+      run: |
+        if (!(Test-Path -Path "./salesforce-ant/lib/ant-salesforce.jar")) {
+          Write-Error "Salesforce Ant Migration Tool download failed."
+        }
 
     - name: Deploy to Salesforce
       run: |
