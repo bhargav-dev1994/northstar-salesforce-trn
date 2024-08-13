@@ -22,11 +22,11 @@ jobs:
 
     - name: Install Salesforce CLI
       run: |
-        npm install --global sfdx-cli
+        npm install --global @salesforce/cli
         echo "Salesforce CLI version:"
-        sfdx --version
+        sf --version
         echo "Salesforce CLI location:"
-        where sfdx
+        where sf
 
     - name: Add Salesforce CLI to PATH
       run: |
