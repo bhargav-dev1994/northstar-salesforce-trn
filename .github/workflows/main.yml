@@ -42,10 +42,12 @@ jobs:
         if (Test-Path -Path "$env:APPDATA\npm") { Get-ChildItem "$env:APPDATA\npm" }
 
     - name: Deploy to Salesforce
-      run: |
-        echo "Deploying to Salesforce..."
-        ant -f build.xml deploy
-      env:
-        SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
-        SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
-        SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
+        run: |
+          echo "Deploying to Salesforce..."
+          set PATH=$PATH:$env:APPDATA\npm
+          ant -f build.xml deploy
+        env:
+          SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
+          SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
+          SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
+      

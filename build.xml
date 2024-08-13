@@ -6,8 +6,8 @@
 
   <target name="deploy">
       <echo message="Deploying to Salesforce..."/>
-      <exec executable="sfdx" failonerror="true" osfamily="windows">
-          <arg line="force:source:deploy --source-dir ${deploy.source} --targetusername ${org.username} --targetdevhubusername ${org.username} --json"/>
-      </exec>
+      <<exec executable="C:\Users\runneradmin\AppData\Roaming\npm\sfdx" dir="${basedir}">
+        <!-- other attributes -->
+    </exec>
   </target>
 </project>
