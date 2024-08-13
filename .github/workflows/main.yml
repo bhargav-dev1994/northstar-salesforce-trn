@@ -28,24 +28,16 @@ jobs:
         echo "Salesforce CLI location:"
         where sf
 
-    - name: Verify Salesforce CLI Installation
+    - name: Download Salesforce Ant Migration Tool
       run: |
-        echo "PATH: $env:PATH"
-        sf --version
-        where sf
-
-    - name: Check Possible Salesforce CLI Directories
-      run: |
-        echo "Checking Salesforce CLI Directories"
-        if (Test-Path -Path "C:\Program Files\nodejs") { Get-ChildItem "C:\Program Files\nodejs" }
-        if (Test-Path -Path "$env:LOCALAPPDATA\sf") { Get-ChildItem "$env:LOCALAPPDATA\sf" }
-        if (Test-Path -Path "$env:APPDATA\npm") { Get-ChildItem "$env:APPDATA\npm" }
+        curl -o salesforce-ant.zip https://resources.docs.salesforce.com/rel1/doc/en-us/static/pdf/SalesforceAnt.zip
+        Expand-Archive -Path salesforce-ant.zip -DestinationPath .
 
     - name: Deploy to Salesforce
       run: |
         echo "Deploying to Salesforce..."
         $env:PATH += ";$env:APPDATA\npm"
-        ant -f build.xml deploy
+        ant -lib ./salesforce-ant/lib -f build.xml deploy
       env:
         SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
         SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
