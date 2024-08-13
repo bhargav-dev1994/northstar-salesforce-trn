@@ -28,19 +28,18 @@ jobs:
         echo "Salesforce CLI location:"
         where sf
 
-    - name: Add Salesforce CLI to PATH
-      run: |
-        echo "C:\\Users\\runneradmin\\AppData\\Roaming\\npm" >> $GITHUB_PATH
-
     - name: Verify Salesforce CLI Installation
       run: |
         echo "PATH: $env:PATH"
         sf --version
         where sf
 
-    - name: List Salesforce CLI Directory
+    - name: Check Salesforce CLI Directory
       run: |
-        dir C:\\Users\\runneradmin\\AppData\\Roaming\\npm
+        echo "Checking Salesforce CLI Directory"
+        dir $env:USERPROFILE\AppData\Roaming\npm
+        dir C:\Program Files\nodejs
+        dir C:\Users\runneradmin\AppData\Local\sf
 
     - name: Deploy to Salesforce
       run: |
