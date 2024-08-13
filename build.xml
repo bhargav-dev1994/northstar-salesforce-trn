@@ -1,13 +1,10 @@
-<project name="Salesforce Deployment" default="deploy" basedir=".">
-  <property name="deploy.source" value="force-app/main/default"/>
-  <property name="org.username" value="${env.SF_USERNAME_DEV1}"/>
-  <property name="org.password" value="${env.SF_PASSWORD_DEV1}"/>
-  <property name="org.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="SalesforceDeployment" default="deploy" basedir=".">
+  <property name="sf.username" value="${env.SF_USERNAME_DEV1}"/>
+  <property name="sf.password" value="${env.SF_PASSWORD_DEV1}"/>
+  <property name="sf.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
 
   <target name="deploy">
-      <echo message="Deploying to Salesforce..."/>
-      <<exec executable="C:\Users\runneradmin\AppData\Roaming\npm\sfdx" dir="${basedir}">
-        <!-- other attributes -->
-    </exec>
+    <sf:deploy username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" deployRoot="src"/>
   </target>
 </project>
