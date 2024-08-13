@@ -37,9 +37,11 @@ jobs:
     - name: Download Salesforce Ant Migration Tool
       run: |
         echo "Downloading Salesforce Ant Migration Tool..."
-        $url = "https://repo1.maven.org/maven2/com/salesforce/ant/ant-salesforce/53.0.0/ant-salesforce-53.0.0.jar"
-        $output = "./lib/ant-salesforce.jar"
+        $url = "https://gs0.salesforce.com/dwnld/SalesforceAnt.zip"  # Updated URL
+        $output = "./salesforce-ant.zip"
         Invoke-WebRequest -Uri $url -OutFile $output
+        Expand-Archive -Path $output -DestinationPath "./salesforce-ant"
+        Copy-Item -Path "./salesforce-ant/ant-salesforce.jar" -Destination "./lib/"
       shell: pwsh
 
     - name: Verify Ant Migration Tool Download
