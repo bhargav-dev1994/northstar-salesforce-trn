@@ -5,11 +5,11 @@
   <property name="org.password" value="${env.SF_PASSWORD_DEV1}"/>
   <property name="org.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
 
-  <!-- Target to deploy to Salesforce using sf -->
+  <!-- Target to deploy to Salesforce using sfdx -->
   <target name="deploy">
       <echo message="Deploying to Salesforce..."/>
-      <exec executable="sf" failonerror="true" osfamily="windows">
-          <arg line="deploy metadata --source-dir ${deploy.source} --target-org ${org.username} --target-org-url ${org.serverurl}"/>
+      <exec executable="sfdx" failonerror="true" osfamily="windows">
+          <arg line="force:source:deploy --source-dir ${deploy.source} --targetusername ${org.username} --targetdevhubusername ${org.username} --json"/>
       </exec>
   </target>
 </project>
