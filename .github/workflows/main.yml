@@ -29,7 +29,7 @@ jobs:
         where sf
         echo "C:\\Users\\runneradmin\\AppData\\Roaming\\npm" >> $GITHUB_PATH
 
-    - name: Verify PATH
+    - name: Verify Salesforce CLI Installation
       run: |
         echo "PATH: $env:PATH"
         where sf
