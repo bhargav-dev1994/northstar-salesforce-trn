@@ -28,33 +28,11 @@ jobs:
         echo "Salesforce CLI location:"
         where sf
 
-    - name: Verify Salesforce CLI Installation
-      run: |
-        echo "PATH: $env:PATH"
-        sf --version
-        where sf
-
-    - name: Download Salesforce Ant Migration Tool
-      run: |
-        echo "Downloading Salesforce Ant Migration Tool..."
-        $url = "https://gs0.salesforce.com/dwnld/SalesforceAnt.zip"  # Updated URL
-        $output = "./salesforce-ant.zip"
-        Invoke-WebRequest -Uri $url -OutFile $output
-        Expand-Archive -Path $output -DestinationPath "./salesforce-ant"
-        Copy-Item -Path "./salesforce-ant/ant-salesforce.jar" -Destination "./lib/"
-      shell: pwsh
-
-    - name: Verify Ant Migration Tool Download
-      run: |
-        if (!(Test-Path -Path "./lib/ant-salesforce.jar")) {
-          Write-Error "Salesforce Ant Migration Tool download failed."
-        }
-
     - name: Deploy to Salesforce
       run: |
         echo "Deploying to Salesforce..."
         $env:PATH += ";$env:APPDATA\npm"
-        ant -f build.xml deploy
+        ant -lib ./lib -f build.xml deploy
       env:
         SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
         SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
