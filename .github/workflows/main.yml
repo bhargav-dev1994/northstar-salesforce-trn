@@ -38,7 +38,7 @@ jobs:
       run: |
         echo "Deploying to Salesforce..."
         $env:PATH += ";$env:APPDATA\npm"
-        ant -lib ./lib -f build.xml deploy
+        ant -lib ./lib -f build.xml deploy -verbose
       env:
         SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
         SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
