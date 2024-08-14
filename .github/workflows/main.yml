@@ -34,6 +34,16 @@ jobs:
         echo "Salesforce CLI location:"
         where sf
 
+    - name: Print Salesforce Credentials
+      run: |
+        echo "SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}"
+        echo "SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}"
+        echo "SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}"
+      env:
+        SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
+        SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
+        SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
+
     - name: Deploy to Salesforce
       run: |
         echo "Deploying to Salesforce..."
