@@ -1,17 +1,31 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="SalesforceDeployment" default="deploy" basedir="." xmlns:sf="antlib:com.salesforce">
+<?xml version="1.0"?>
+<project name="SalesforceDeployment" default="deploy" basedir=".">
   
+  <!-- Load environment variables -->
+  <property environment="env"/>
+
+  <!-- Set Salesforce credentials using environment variables -->
   <property name="sf.username" value="${env.SF_USERNAME_DEV1}"/>
   <property name="sf.password" value="${env.SF_PASSWORD_DEV1}"/>
   <property name="sf.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
 
-  <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce">
-    <classpath>
-      <pathelement location="path/to/your/salesforce-ant.jar"/>
-    </classpath>
-  </taskdef>
-
-  <target name="deploy">
-    <sf:deploy username="${SF_USERNAME_DEV1}" password="${SF_PASSWORD_DEV1}" serverurl="${SF_SERVERURL_SANDBOX}" deployRoot="src"/>
+  <!-- Debug: Print out the environment variables -->
+  <target name="debug">
+    <echo message="SF_USERNAME_DEV1: ${sf.username}"/>
+    <echo message="SF_PASSWORD_DEV1: ${sf.password}"/>
+    <echo message="SF_SERVERURL_SANDBOX: ${sf.serverurl}"/>
   </target>
+
+  <!-- Ant target to deploy to Salesforce -->
+  <target name="deploy" depends="debug">
+    <taskdef resource="com/salesforce/antlib.xml" classpath="./lib/ant-salesforce.jar"/>
+    <sf:deploy 
+      username="${sf.username}"
+      password="${sf.password}"
+      serverurl="${sf.serverurl}"
+      deployRoot="src"
+      testLevel="RunSpecifiedTests"
+      runTests="MyTestClass"/>
+  </target>
+
 </project>
