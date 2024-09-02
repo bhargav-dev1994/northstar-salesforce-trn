@@ -33,7 +33,7 @@ jobs:
         sf --version
         echo "Salesforce CLI location:"
         where sf
-        
+
     - name: Print Environment Variables
       run: printenv
 
