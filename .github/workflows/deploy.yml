@@ -23,6 +23,9 @@ jobs:
       with:
         node-version: '18.20.3'
 
+    - name: Clear npm cache
+      run: npm cache clean --force
+
     - name: Install Salesforce CLI
       run: npm install --global @salesforce/cli
 
