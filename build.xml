@@ -9,8 +9,8 @@
   <property name="sf.password" value="${env.SF_PASSWORD_DEV1}"/>
   <property name="sf.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
 
-  <!-- Define the Salesforce Ant namespace -->
-  <typedef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce" classpath="./lib/ant-salesforce.jar" />
+  <!-- Define the Salesforce Ant tasks -->
+  <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce" classpath="./lib/ant-salesforce.jar" />
 
   <!-- Debug: Print out the environment variables -->
   <target name="debug">
