@@ -10,7 +10,7 @@
   <property name="sf.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
 
   <!-- Define the Salesforce Ant tasks -->
-  <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce" classpath="./lib/ant-salesforce.jar" />
+  <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce" classpath="./lib/ant-salesforce.jar"/>
 
   <!-- Debug: Print out the environment variables -->
   <target name="debug">
