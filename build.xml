@@ -9,6 +9,9 @@
   <property name="sf.password" value="${env.SF_PASSWORD_DEV1}"/>
   <property name="sf.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
 
+  <!-- Define the Salesforce Ant namespace -->
+  <typedef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce" classpath="./lib/ant-salesforce.jar" />
+
   <!-- Debug: Print out the environment variables -->
   <target name="debug">
     <echo message="SF_USERNAME_DEV1: ${sf.username}"/>
@@ -18,7 +21,6 @@
 
   <!-- Ant target to deploy to Salesforce -->
   <target name="deploy" depends="debug">
-    <taskdef resource="com/salesforce/antlib.xml" classpath="./lib/ant-salesforce.jar"/>
     <sf:deploy 
       username="${sf.username}"
       password="${sf.password}"
