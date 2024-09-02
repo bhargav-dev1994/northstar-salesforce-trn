@@ -27,21 +27,12 @@ jobs:
         node-version: '18.x'
 
     - name: Install Salesforce CLI
-      run: |
-        npm install --global @salesforce/cli
-        echo "Salesforce CLI version:"
-        sf --version
-        echo "Salesforce CLI location:"
-        where sf
-
-    - name: Print Environment Variables
-      run: printenv
+      run: npm install --global sfdx-cli
 
     - name: Deploy to Salesforce
       run: |
         echo "Deploying to Salesforce..."
-        $env:PATH += ";$env:APPDATA\npm"
-        ant -lib ./lib -f build.xml deploy -verbose
+        ant -lib ./lib -f build.xml deploy
       env:
         SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
         SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
