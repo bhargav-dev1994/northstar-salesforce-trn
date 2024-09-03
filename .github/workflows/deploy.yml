@@ -31,9 +31,9 @@ jobs:
 
     - name: Set up Salesforce environment variables
       env:
-        SF_USERNAME: ${{ secrets.SF_USERNAME_DEV1 }}
-        SF_PASSWORD: ${{ secrets.SF_PASSWORD_DEV1 }}
-        SF_SERVERURL: ${{ secrets.SF_SERVERURL_SANDBOX }}
+        SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
+        SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
+        SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
       run: echo "Salesforce environment variables set."
 
     - name: Deploy to Salesforce
