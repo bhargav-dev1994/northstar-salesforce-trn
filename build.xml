@@ -5,12 +5,12 @@
   <property environment="env"/>
 
   <!-- Set Salesforce credentials using environment variables -->
-  <property name="sf.username" value="${env.SF_USERNAME_DEV1}"/>
-  <property name="sf.password" value="${env.SF_PASSWORD_DEV1}"/>
-  <property name="sf.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
+  <property name="sf.username" value="${env.SF_USERNAME}"/>
+  <property name="sf.password" value="${env.SF_PASSWORD}"/>
+  <property name="sf.serverurl" value="${env.SF_SERVERURL}"/>
 
   <!-- Define the Salesforce Ant tasks -->
-  <taskdef resource="com/salesforce/antlib.xml" classpath="./lib/ant-salesforce.jar"/>
+  <taskdef uri="sf" resource="com/salesforce/antlib.xml" classpath="./lib/ant-salesforce.jar"/>
 
   <!-- Ant target to deploy to Salesforce -->
   <target name="deploy">
