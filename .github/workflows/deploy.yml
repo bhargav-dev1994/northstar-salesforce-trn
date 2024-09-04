@@ -23,6 +23,12 @@ jobs:
       with:
         node-version: '18.20.3'
 
+    - name: Set up Java 11
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
     - name: Clear npm cache
       run: npm cache clean --force
 
