@@ -29,18 +29,15 @@ jobs:
     - name: Install Salesforce CLI
       run: npm install --global @salesforce/cli
 
-    - name: List contents of lib directory (for verification)
-      run: dir lib
-
-    - name: Check Ant version
-      run: ant -version
-
     - name: Set up Salesforce environment variables
       env:
         SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
         SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
         SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
       run: echo "Salesforce environment variables set."
+
+    - name: List contents of lib directory (for verification)
+      run: dir lib
 
     - name: Deploy to Salesforce
       run: |
