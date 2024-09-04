@@ -1,21 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <project name="SalesforceDeployment" default="deploy" basedir=".">
   
   <!-- Load environment variables -->
   <property environment="env"/>
 
   <!-- Set Salesforce credentials using environment variables -->
-  <property name="sf.username" value="${env.SF_USERNAME_DEV1}"/>
-  <property name="sf.password" value="${env.SF_PASSWORD_DEV1}"/>
-  <property name="sf.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
+  <property name="sf.username" value="${SF_USERNAME_DEV1}"/>
+  <property name="sf.password" value="${SF_PASSWORD_DEV1}"/>
+  <property name="sf.serverurl" value="${SF_SERVERURL_SANDBOX}"/>
 
-  <!-- Define the Salesforce Ant tasks with explicit classpath -->
-  <taskdef name="sfDeploy" classname="com.salesforce.ant.DeployTask" classpath="./lib/ant-salesforce.jar"/>
-  <taskdef name="sfRetrieve" classname="com.salesforce.ant.RetrieveTask" classpath="./lib/ant-salesforce.jar"/>
+  <!-- Define the Salesforce Ant tasks -->
+  <taskdef resource="com/salesforce/antlib.xml" classpath="lib/ant-salesforce.jar"/>
 
   <!-- Ant target to deploy to Salesforce -->
   <target name="deploy">
-    <sfDeploy 
+    <sf:deploy 
       username="${sf.username}"
       password="${sf.password}"
       serverurl="${sf.serverurl}"
