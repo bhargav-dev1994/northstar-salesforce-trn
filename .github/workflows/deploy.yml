@@ -48,4 +48,4 @@ jobs:
     - name: Deploy to Salesforce
       run: |
         echo "Deploying to Salesforce..."
-        ant -lib lib/ant-salesforce.jar deploy
+        ant -verbose -lib lib/ant-salesforce.jar deploy
