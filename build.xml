@@ -1,18 +1,25 @@
-<project name="SalesforceDeployment" default="deploy" xmlns:sf="antlib:com.salesforce.ant">
-    
-  <target name="deploy">
-      <echo message="Deploying to Salesforce..." />
+<?xml version="1.0"?>
+<project name="SalesforceDeployment" default="deploy" basedir=".">
+  
+  <!-- Load environment variables -->
+  <property environment="env"/>
 
-      <sf:deploy
-          username="${sf.username}"
-          password="${sf.password}"
-          serverurl="${sf.serverurl}"
-          deployRoot="path/to/your/source/folder" 
-          checkOnly="false"
-          runTests="false"
-          rollbackOnError="true"
-          pollWaitMillis="10000"
-          maxPoll="100"
-      />
+  <!-- Set Salesforce credentials using environment variables -->
+  <property name="sf.username" value="${SF_USERNAME_DEV1}"/>
+  <property name="sf.password" value="${SF_PASSWORD_DEV1}"/>
+  <property name="sf.serverurl" value="${SF_SERVERURL_SANDBOX}"/>
+
+  <!-- Define the Salesforce Ant tasks -->
+  <taskdef uri="antlib:com.salesforce" resource="com/salesforce/antlib.xml" classpath="lib/ant-salesforce.jar"/>
+
+  <!-- Ant target to deploy to Salesforce -->
+  <target name="deploy">
+    <sf:deploy 
+      username="${sf.username}"
+      password="${sf.password}"
+      serverurl="${sf.serverurl}"
+      deployRoot="src"
+      testLevel="NoTestRun"/>
   </target>
+
 </project>

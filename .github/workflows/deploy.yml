@@ -1,0 +1,51 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - Dev1
+      - SIT
+      - UAT
+  pull_request:
+    branches:
+      - SIT
+
+jobs:
+  build-deploy:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.20.3'
+
+    - name: Set up Java 11
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '11'
+
+    - name: Clear npm cache
+      run: npm cache clean --force
+
+    - name: Install Salesforce CLI
+      run: npm install --global @salesforce/cli
+
+    - name: Set up Salesforce environment variables
+      env:
+        SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
+        SF_PASSWORD_DEV1: ${{ secrets.SF_PASSWORD_DEV1 }}
+        SF_SERVERURL_SANDBOX: ${{ secrets.SF_SERVERURL_SANDBOX }}
+      run: echo "Salesforce environment variables set."
+
+    - name: List contents of lib directory (for verification)
+      run: dir lib
+
+    - name: Deploy to Salesforce
+      run: |
+        echo "Deploying to Salesforce..."
+        ant -lib lib/ant-salesforce.jar deploy
