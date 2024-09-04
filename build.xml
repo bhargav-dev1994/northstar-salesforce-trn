@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project name="SalesforceDeployment" default="deploy" basedir=".">
   
   <!-- Load environment variables -->
@@ -10,11 +10,12 @@
   <property name="sf.serverurl" value="${env.SF_SERVERURL_SANDBOX}"/>
 
   <!-- Define the Salesforce Ant tasks with explicit classpath -->
-  <taskdef name="sf" uri="antlib:com.salesforce" resource="com/salesforce/antlib.xml" classpath="lib/ant-salesforce.jar"/>
+  <taskdef name="sfDeploy" classname="com.salesforce.ant.DeployTask" classpath="./lib/ant-salesforce.jar"/>
+  <taskdef name="sfRetrieve" classname="com.salesforce.ant.RetrieveTask" classpath="./lib/ant-salesforce.jar"/>
 
   <!-- Ant target to deploy to Salesforce -->
   <target name="deploy">
-    <sf:deploy 
+    <sfDeploy 
       username="${sf.username}"
       password="${sf.password}"
       serverurl="${sf.serverurl}"
