@@ -32,6 +32,9 @@ jobs:
     - name: List contents of lib directory (for verification)
       run: dir lib
 
+    - name: Check Ant version
+      run: ant -version
+
     - name: Set up Salesforce environment variables
       env:
         SF_USERNAME_DEV1: ${{ secrets.SF_USERNAME_DEV1 }}
